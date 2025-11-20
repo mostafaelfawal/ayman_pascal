@@ -37,7 +37,7 @@ class Layout:
 
         button_style = {
             "font": ("Arial", 18),
-            "fg_color": "#3b82f6",  # Light blue button
+            "fg_color": "#3b82f6",
             "hover_color": "#60a5fa",
             "corner_radius": 12,
             "height": 50
