@@ -1,11 +1,9 @@
 from utils.load_image import load_image
-from customtkinter import CTkLabel, CTkFrame
-from time import strftime
+from customtkinter import CTkLabel
 
 class PlaceholderUI:
     def __init__(self, root):
         self.root = root
-        self.year = strftime("%Y")
         # Load program icon
         icon = load_image("assets/icon.png", (200, 200))
 
@@ -15,14 +13,14 @@ class PlaceholderUI:
         # Title
         CTkLabel(
             self.root,
-            text="لإدارة موازين باسكال",
+            text="لإدارة موازين باسكول",
             font=("Arial", 50, "bold"),
         ).pack(pady=20)
 
         # Copyright
         CTkLabel(
             self.root,
-            text=f"{self.year} © جميع الحقوق محفوظة",
+            text=f"2025 © جميع الحقوق محفوظة",
             font=("Arial", 18),
         ).pack(pady=5)
 

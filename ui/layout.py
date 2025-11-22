@@ -3,19 +3,17 @@ from tkinter.messagebox import askokcancel
 from utils.load_image import load_image
 from utils.clear_frame import clear_frame
 from ui.placeholderUI import PlaceholderUI
-from ui.recording_weights import Recording_weights
+from ui.recording_weights import RecordingWeights
 
 class Layout:
     def __init__(self, root):
         self.root = root
 
-        self.main_frame = CTkFrame(self.root, fg_color="transparent", border_width=1, border_color="#3b82f6", corner_radius=10)
+        self.main_frame = CTkFrame(self.root, fg_color="transparent", border_width=1, border_color="#3b82f6", corner_radius=12)
         self.main_frame.pack(expand=True, side="left", fill="both")
 
         self.tabs = [
-            {"title": "الرئيسية", "icon": "assets/الرئيسيه.png", "com": None},
-            {"title": "تسجيل السيارات", "icon": "assets/تسجيل السيارات.png", "com": None},
-            {"title": "الوزنات", "icon": "assets/الوزنات.png", "com": lambda: self.toggle_ui(Recording_weights)},
+            {"title": "الوزنات", "icon": "assets/الوزنات.png", "com": lambda: self.toggle_ui(RecordingWeights)},
             {"title": "الأعدادات", "icon": "assets/الأعدادات.png", "com": None},
         ]
 
