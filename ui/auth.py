@@ -18,14 +18,18 @@ class Auth:
         self.auth_frame = CTkFrame(self.root, fg_color="transparent")
         self.auth_frame.pack(expand=True)
 
+        # كارد النموذج
+        self.card = CTkFrame(self.auth_frame, corner_radius=20, border_color="blue", border_width=2)
+        self.card.pack()
+
         # العنوان
-        title = CTkLabel(self.auth_frame, text="تسجيل الدخول", font=("Arial", 30, "bold"))
-        title.pack(pady=10)
+        title = CTkLabel(self.card, text="تسجيل الدخول", font=("Arial", 30, "bold"))
+        title.pack(pady=(20, 10))
 
         # الصورة
         ctk_image = load_image("assets/verified.png", size=(100, 100))
-        image_label = CTkLabel(self.auth_frame, image=ctk_image, text="")
-        image_label.pack(pady=10)
+        image_label = CTkLabel(self.card, image=ctk_image, text="")
+        image_label.pack(pady=(0, 20))
 
         # نموذج تسجيل / دخول
         self.create_form()
@@ -34,25 +38,50 @@ class Auth:
     # إنشاء نموذج الدخول أو التسجيل
     # ---------------------------
     def create_form(self):
-        self.form_frame = CTkFrame(self.auth_frame, fg_color="transparent")
-        self.form_frame.pack(pady=10)
+        self.form_frame = CTkFrame(self.card, fg_color="transparent")
+        self.form_frame.pack(pady=10, padx=10)
 
         # اسم المستخدم
-        self.name_entry = CTkEntry(self.form_frame, placeholder_text="اسم المستخدم...", font=self.main_font)
-        self.name_entry.pack(pady=5, padx=10)
+        self.name_entry = CTkEntry(
+            self.form_frame,
+            placeholder_text="اسم المستخدم...",
+            font=self.main_font,
+            width=300,
+        )
+        self.name_entry.pack(pady=8, padx=5)
 
-        # كلمة المرور
+        # كلمة المرور + زر الإظهار
         password_frame = CTkFrame(self.form_frame, fg_color="transparent")
-        password_frame.pack(pady=5, padx=10)
-        self.password_entry = CTkEntry(password_frame, placeholder_text="كلمة المرور...", show="•", font=self.main_font)
-        self.password_entry.pack(side="left")
-        self.password_button = CTkButton(password_frame, text="اظهار", font=self.main_font, width=10, command=self.toggle_show_password)
-        self.password_button.pack(side="left", padx=5)
-        
+        password_frame.pack(pady=8)
 
-        # زر الدخول 
-        self.submit_btn = CTkButton(self.form_frame, text="تسجيل الدخول", command=self.handle_auth, font=self.main_font)
-        self.submit_btn.pack(pady=10)
+        self.password_entry = CTkEntry(
+            password_frame,
+            placeholder_text="كلمة المرور...",
+            show="•",
+            font=self.main_font,
+            width=230,
+        )
+        self.password_entry.pack(side="left", padx=5)
+
+        self.password_button = CTkButton(
+            password_frame,
+            text="اظهار",
+            font=("Arial", 16),
+            width=60,
+            command=self.toggle_show_password
+        )
+        self.password_button.pack(side="left", padx=5)
+
+        # زر تسجيل الدخول
+        self.submit_btn = CTkButton(
+            self.form_frame,
+            text="تسجيل الدخول",
+            command=self.handle_auth,
+            font=self.main_font,
+            width=300,
+            height=45
+        )
+        self.submit_btn.pack(pady=15)
     
     # ---------------------------
     # تبديل حالة اظهار و اخفاء حقل كلمة المرور 

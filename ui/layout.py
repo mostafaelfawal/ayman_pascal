@@ -3,7 +3,8 @@ from tkinter.messagebox import askokcancel
 from utils.load_image import load_image
 from utils.clear_frame import clear_frame
 from ui.placeholderUI import PlaceholderUI
-from ui.recording_weights import RecordingWeights
+from ui.new_weights import NewWeights
+from ui.record_weights import RecordWeights
 
 class Layout:
     def __init__(self, root):
@@ -13,7 +14,8 @@ class Layout:
         self.main_frame.pack(expand=True, side="left", fill="both")
 
         self.tabs = [
-            {"title": "الوزنات", "icon": "assets/الوزنات.png", "com": lambda: self.toggle_ui(RecordingWeights)},
+            {"title": "وزنة جديده", "icon": "assets/وزنة جديده.png", "com": lambda: self.toggle_ui(NewWeights)},
+            {"title": "سجل الأوزان", "icon": "assets/سجل الأوزان.png", "com": lambda: self.toggle_ui(RecordWeights)},
             {"title": "الأعدادات", "icon": "assets/الأعدادات.png", "com": None},
         ]
 
