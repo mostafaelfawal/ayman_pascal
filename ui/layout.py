@@ -5,18 +5,18 @@ from utils.clear_frame import clear_frame
 from ui.placeholderUI import PlaceholderUI
 from ui.new_weights import NewWeights
 from ui.record_weights import RecordWeights
+from ui.settings import Settings
 
 class Layout:
     def __init__(self, root):
         self.root = root
-
         self.main_frame = CTkFrame(self.root, fg_color="transparent", border_width=1, border_color="#3b82f6", corner_radius=12)
         self.main_frame.pack(expand=True, side="left", fill="both")
 
         self.tabs = [
             {"title": "وزنة جديده", "icon": "assets/وزنة جديده.png", "com": lambda: self.toggle_ui(NewWeights)},
             {"title": "سجل الأوزان", "icon": "assets/سجل الأوزان.png", "com": lambda: self.toggle_ui(RecordWeights)},
-            {"title": "الأعدادات", "icon": "assets/الأعدادات.png", "com": None},
+            {"title": "الأعدادات", "icon": "assets/الأعدادات.png", "com": lambda: self.toggle_ui(Settings)}
         ]
 
         PlaceholderUI(self.main_frame)

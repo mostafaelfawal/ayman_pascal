@@ -41,15 +41,6 @@ class Auth:
         self.form_frame = CTkFrame(self.card, fg_color="transparent")
         self.form_frame.pack(pady=10, padx=10)
 
-        # اسم المستخدم
-        self.name_entry = CTkEntry(
-            self.form_frame,
-            placeholder_text="اسم المستخدم...",
-            font=self.main_font,
-            width=300,
-        )
-        self.name_entry.pack(pady=8, padx=5)
-
         # كلمة المرور + زر الإظهار
         password_frame = CTkFrame(self.form_frame, fg_color="transparent")
         password_frame.pack(pady=8)
@@ -100,15 +91,13 @@ class Auth:
     # ---------------------------
     def handle_auth(self):
         password = self.password_entry.get()
-        name = self.name_entry.get()
-
-        if not password or not name:
-            showerror("خطأ", "من فضلك املأ الحقول")
+        if not password:
+            showerror("خطأ", "من فضلك ادخل كلمة المرور")
             return
         
-        if name == 'admin' and password == "admin":
+        if password == "admin":
             showinfo("نجاح", "مرحبا بعودتك في ايمن للموازين.")
             clear_frame(self.root)
             Layout(self.root)
         else:
-            showerror("خطأ", "المعلومات التي ادخلتها غير صحيحه.")
+            showerror("خطأ", "كلمة المرور غير صحيحه.")

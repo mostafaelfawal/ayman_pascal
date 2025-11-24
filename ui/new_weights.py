@@ -291,7 +291,7 @@ class NewWeights:
         frame.pack(fill="x")
 
         buttons_frame = CTkFrame(frame, fg_color="transparent")
-        buttons_frame.pack(fill="x", padx=15, pady=15)
+        buttons_frame.pack(padx=15, pady=15)
 
         buttons_config = [
             ("حفظ وطباعة", "assets/حفظ و طباعة.png", self.save_and_print, self.colors["purple"], self.colors["purple_hover"]),
@@ -373,8 +373,8 @@ class NewWeights:
         weight2_time = self.entries["weight2_time"].get()
         weight2_date = self.entries["weight2_date"].get()
         weight2_value = self.entries["weight2_weight"].get()
-        net_weight_text = self.net_weight.cget("text")  # الصافي
-
+        net_weight_text = self.net_weight.cget("text")
+        time = datetime.now().strftime("%d/%m/%Y , %H:%M:%S")
         # =========================================
         # إعداد PDF
         # =========================================
@@ -456,7 +456,7 @@ class NewWeights:
         # =========================================
         # بيانات العميل
         # =========================================
-        current_y -= 40
+        current_y -= 20
         
         # خلفية قسم بيانات العميل
         c.setFillColor(light_blue)
@@ -469,7 +469,7 @@ class NewWeights:
                         'Amiri-Bold', 16, white, 'center')
         
         # بيانات العميل في صفين
-        current_y -= 50
+        current_y -= 45
         
         # الصف الأول
         draw_arabic_text(f"اسم العميل: {client_name}", margin_x + 20, current_y, 
@@ -482,6 +482,11 @@ class NewWeights:
         draw_arabic_text(f"نوع الحمولة: {cargo_type}", margin_x + 20, current_y, 
                         'Amiri', 14, black, 'left')
         draw_arabic_text(f"المحافظة: {governorate}", width/2 + 50, current_y, 
+                        'Amiri', 14, black, 'left')
+        
+        # الصف الثالث 
+        current_y -= 25
+        draw_arabic_text(f"تاريخ الطباعه: {time}", margin_x + 20, current_y, 
                         'Amiri', 14, black, 'left')
         
         # =========================================
@@ -516,7 +521,7 @@ class NewWeights:
             table_data.append(table_row)
         
         # حساب أبعاد الجدول بدقة ليتناسب مع الصفحة
-        table_width = width - (2 * margin_x) - 20  # عرض أقل من الصفحة بمقدار 20 نقطة
+        table_width = width-2*margin_x
         col_widths = [
             table_width * 0.30,  # اسم الوزنة
             table_width * 0.25,  # التاريخ
@@ -546,12 +551,12 @@ class NewWeights:
         # رسم الجدول مباشرة تحت العنوان
         table.wrapOn(c, table_width, height)
         table_height = 75  # ارتفاع الجدول (3 صفوف × 25)
-        table.drawOn(c, margin_x + 10, current_y - 30 - table_height)  # ملاصق للعنوان
+        table.drawOn(c, margin_x, current_y - 30 - table_height)  # ملاصق للعنوان
         
         # =========================================
         # الوزن الصافي
         # =========================================
-        net_weight_y = current_y - table_height - 80  # مسافة مناسبة بعد الجدول
+        net_weight_y = current_y - table_height - 50  # مسافة مناسبة بعد الجدول
         
         c.setFillColor(secondary_blue)
         c.rect(margin_x, net_weight_y-50, width-2*margin_x, 50, fill=1, stroke=0)
