@@ -5,7 +5,7 @@ from models.scale import ScaleDB
 from utils.clear_frame import clear_frame
 from utils.load_image import load_image
 from ui.new_weights import NewWeights
-
+from ui.edit_weight import EditWeight
 
 class RecordWeights:
     def __init__(self, root):
@@ -380,4 +380,6 @@ class RecordWeights:
         if not self.selected_id:
             showerror("خطأ", "اختر الوزنة التي تريد تعديلها أولاً.")
             return
-        showinfo("تم", "تعديل الوزن (قيد التطوير...)")
+        
+        EditWeight(self.selected_id, self.reload_treeview)
+        self.selected_id = ""

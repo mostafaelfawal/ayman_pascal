@@ -41,3 +41,8 @@ class ScaleDB:
         self.cur.execute("SELECT * FROM scales")
         rows = self.cur.fetchall()
         return rows
+    
+    def get_scale_by_id(self, id):
+        self.cur.execute("SELECT * FROM scales WHERE id=?", (id,))
+        data = self.cur.fetchone()
+        return data
