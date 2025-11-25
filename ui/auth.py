@@ -3,6 +3,7 @@ from tkinter.messagebox import showerror, showinfo
 from ui.layout import Layout
 from utils.clear_frame import clear_frame
 from utils.load_image import load_image
+from utils.settings_work import check_password, ensure_file_exists
 
 class Auth:
     def __init__(self, root):
@@ -95,7 +96,9 @@ class Auth:
             showerror("خطأ", "من فضلك ادخل كلمة المرور")
             return
         
-        if password == "admin":
+        ensure_file_exists()
+        
+        if check_password(password):
             showinfo("نجاح", "مرحبا بعودتك في ايمن للموازين.")
             clear_frame(self.root)
             Layout(self.root)

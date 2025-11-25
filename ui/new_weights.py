@@ -16,6 +16,7 @@ import arabic_reshaper
 from reportlab.lib.colors import HexColor, black, white
 from reportlab.platypus import Table, TableStyle
 import os
+from utils.settings_work import get_setting_by_key
 
 class NewWeights:
     def __init__(self, root):
@@ -434,18 +435,33 @@ class NewWeights:
         c.setFillColor(primary_blue)
         c.rect(0, height - 40, width, 40, fill=1, stroke=0)
         
+        # جلب معلومات الشركة من الإعدادات (مع قيم افتراضية احتياطية)
+        try:
+            company_name = get_setting_by_key("company_name") or "أيمن للموازين"
+            company_phone = get_setting_by_key("company_phone") or "01008454579"
+            company_email = get_setting_by_key("company_email") or "ayman_scale@gmail.com"
+        except Exception:
+            company_name = "أيمن للموازين"
+            company_phone = "01008454579"
+            company_email = "ayman_scale@gmail.com"
+
         # عنوان الشركة في المركز
-        draw_arabic_text("أيمن للموازين", width/2, height-30, 
-                        'Amiri-Bold', 24, white, 'center')
+        draw_arabic_text(company_name, width/2, height-30, 'Amiri-Bold', 24, white, 'center')
         
         # معلومات الاتصال
         current_y = height - 90
-        draw_arabic_text("شركة أيمن للموازين - موازين إلكترونية دقيقة", 
-                        width/2, current_y, 'Amiri', 12, primary_blue, 'center')
+        draw_arabic_text(f"شركة {company_name} - موازين إلكترونية دقيقة", 
+                width/2, current_y, 'Amiri', 12, primary_blue, 'center')
         
         current_y -= 20
-        draw_arabic_text("تلفون: 01008454579 - بريد إلكتروني: ayman_scale@gmail.com", 
-                        width/2, current_y, 'Amiri', 10, primary_blue, 'center')
+        contact_line = ""
+        if company_phone and company_email:
+            contact_line = f"تلفون: {company_phone} - بريد إلكتروني: {company_email}"
+        elif company_phone:
+            contact_line = f"تلفون: {company_phone}"
+        elif company_email:
+            contact_line = f"بريد إلكتروني: {company_email}"
+        draw_arabic_text(contact_line, width/2, current_y, 'Amiri', 10, primary_blue, 'center')
         
         # خط فاصل
         c.setStrokeColor(secondary_blue)
@@ -586,8 +602,9 @@ class NewWeights:
         draw_arabic_text("Powered By Mostafa Hamdi", width/2, 40, 
                         'Amiri', 12, white, 'center')
         
-        draw_arabic_text("للاستفسار: 01008454579 - جميع الحقوق محفوظة © 2025", 
-                        width/2, 20, 'Amiri', 10, white, 'center')
+        footer_year = datetime.now().year
+        footer_line = f"للاستفسار: {company_phone} - جميع الحقوق محفوظة © {footer_year}"
+        draw_arabic_text(footer_line, width/2, 20, 'Amiri', 10, white, 'center')
         
         # =========================================
         # حفظ وفتح الملف
