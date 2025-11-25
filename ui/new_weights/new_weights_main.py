@@ -1,6 +1,6 @@
-from customtkinter import CTkFrame, StringVar
+from customtkinter import CTkFrame
 from tkinter.messagebox import askokcancel, showinfo, showerror
-from datetime import datetime
+from re import search
 import serial
 import time
 from threading import Thread
@@ -148,14 +148,30 @@ class NewWeights:
             time.sleep(3)
 
     def _process_scale_data(self, data_line):
-        parts = data_line.split(",")
-        if len(parts) < 3:
+        if not data_line:
             return
 
-        raw_weight = parts[2].replace("+", "").replace("kg", "").strip()
+        # 1) تنظيف السطر من الرموز الشائعة في الموازين
+        data_line = (
+            data_line.replace("\x02", "")  # STX
+                    .replace("\x03", "")  # ETX
+                    .replace("\r", "")
+                    .replace("\n", "")
+                    .replace("kg", "")
+                    .replace("g", "")
+                    .replace("KG", "")
+                    .strip()
+        )
+
+        # 2) استخراج الرقم من أي صيغة (ينجح مع معظم الموازين)
+        match = search(r"[-+]?\d*\.\d+|[-+]?\d+", data_line)
+        if not match:
+            return
 
         try:
-            weight_value = float(raw_weight)
-            self.root.after(0, lambda: self.scale_display.scale_var.set(f"{weight_value:.2f}"))
-        except ValueError:
+            weight_value = float(match.group())
+            self.root.after(0, lambda: 
+                self.scale_display.scale_var.set(f"{weight_value:.2f}")
+            )
+        except:
             pass

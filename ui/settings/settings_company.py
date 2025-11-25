@@ -14,8 +14,9 @@ class CompanySection:
             font=("Arial", 24, "bold"),
             text_color=self.owner.text_color,
         )
-        self.owner.company_title.pack(anchor="e", pady=(10, 10), padx=10)
-
+        self.owner.company_title.pack(anchor="e", padx=10)
+        CTkLabel(self.owner.main_frame, text="!سيتم عرض هذه البيانات في الفاتوره", text_color="#00b3ad", font=("Arial", 14)).pack(anchor="e", pady=(4, 10), padx=10)
+        
         self.owner.company_frame = CTkFrame(
             self.owner.main_frame,
             fg_color=self.owner.frame_bg,
