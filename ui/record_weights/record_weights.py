@@ -6,7 +6,7 @@ from tkinter.messagebox import askokcancel, showinfo, showerror
 from models.scale import ScaleDB
 from utils.clear_frame import clear_frame
 from utils.load_image import load_image
-from ui.new_weights import NewWeights
+from ui.new_weights.new_weights_main import NewWeights
 from ui.edit_weight import EditWeight
 
 class RecordWeights:
