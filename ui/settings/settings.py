@@ -7,6 +7,7 @@ from utils.settings_work import (
 from ui.settings.settings_security import SecuritySection
 from ui.settings.settings_password import PasswordSection
 from ui.settings.settings_company import CompanySection
+from ui.settings.settings_scale import ScaleSection
 from ui.settings.settings_save import SaveSection
 
 class Settings:
@@ -26,6 +27,7 @@ class Settings:
         SecuritySection(self).build()
         PasswordSection(self).build()
         CompanySection(self).build()
+        ScaleSection(self).build()
         SaveSection(self).build()
         
         self.toggle_security()  # التحديث الأولي للحالة
@@ -105,6 +107,22 @@ class Settings:
             update_settings_by_key("company_name", self.company_name_entry.get().strip())
             update_settings_by_key("company_phone", self.company_phone_entry.get().strip())
             update_settings_by_key("company_email", self.company_email_entry.get().strip())
+            # حفظ اعدادات الميزان (منفذ و Baud Rate)
+            try:
+                port_value = self.scale_port_option.get()
+                # OptionMenu may contain an explanatory suffix like " (غير موصول حاليا)"
+                if isinstance(port_value, str) and "(" in port_value:
+                    port_value = port_value.split("(")[0].strip()
+                update_settings_by_key("scale_port", port_value)
+            except Exception:
+                # ignore if widgets not present
+                pass
+
+            try:
+                baud = self.scale_baud_entry.get().strip()
+                update_settings_by_key("scale_baudrate", baud)
+            except Exception:
+                pass
         except Exception:
             # إذا الحقول غير موجودة (حفظ قد يكون قادم من نسخة قديمة)، تجاوب بهدوء
             pass

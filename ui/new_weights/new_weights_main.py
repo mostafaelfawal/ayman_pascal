@@ -6,6 +6,7 @@ import time
 from threading import Thread
 from models.scale import ScaleDB
 from utils.print_scale import print_scale
+from utils.settings_work import get_setting_by_key
 from ui.new_weights.scale_display import ScaleDisplay
 from ui.new_weights.weight_frames import WeightFrames
 from ui.new_weights.form_fields import FormFields
@@ -135,9 +136,11 @@ class NewWeights:
             return
 
         try:
+            port = get_setting_by_key("scale_port") or "COM1"
+            scale_baudrate = get_setting_by_key("scale_baudrate") or 9600
             self.ser = serial.Serial(
-                port="COM1",
-                baudrate=9600,
+                port= port,
+                baudrate=scale_baudrate,
                 parity=serial.PARITY_NONE,
                 stopbits=serial.STOPBITS_ONE,
                 bytesize=serial.EIGHTBITS,

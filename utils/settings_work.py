@@ -13,7 +13,10 @@ def ensure_file_exists():
             "is_security": True,
             "company_name": "أيمن للموازين",
             "company_phone": "01008454579",
-            "company_email": "ayman_scale@gmail.com"
+            "company_email": "ayman_scale@gmail.com",
+            # serial/scale defaults
+            "scale_port": "COM1",
+            "scale_baudrate": "9600"
         }, open(FILE, "w"), indent=4)
 
 def update_settings_by_key(key, value):
@@ -30,7 +33,8 @@ def get_setting_by_key(key):
     ensure_file_exists()
     with open(FILE, "r") as f:
         data = load(f)
-    return data[key]
+    # return None if key doesn't exist (backwards compatible with older settings files)
+    return data.get(key)
 
 def check_password(password: str) -> bool:
     """تحقق من الباسورد المدخل مقابل المخزن في JSON"""

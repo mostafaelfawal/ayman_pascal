@@ -1,7 +1,9 @@
 {
-    "password": "$2b$12$Ucm4fmjaTXyA3VcZKUEyWuE6oHAdJ7J8iTgc6Ad4mQ42UElbwUqLy",
+    "password": "$2b$12$CFShW1AekdTzSEXx.nHcRujlmAwULWS8Hue7MyLnwQifbYJQL71qG",
     "is_security": true,
-    "company_name": "\u0627\u064a\u0645\u0646 \u0644\u0644\u0645\u0648\u0627\u0632\u064a\u0646",
-    "company_phone": "01151083509",
-    "company_email": "armostafa982@gmail.com"
+    "company_name": "\u0623\u064a\u0645\u0646 \u0644\u0644\u0645\u0648\u0627\u0632\u064a\u0646",
+    "company_phone": "01008454579",
+    "company_email": "ayman_scale@gmail.com",
+    "scale_port": "COM1",
+    "scale_baudrate": "9600"
 }
