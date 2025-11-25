@@ -5,7 +5,7 @@ from utils.clear_frame import clear_frame
 from ui.placeholderUI import PlaceholderUI
 from ui.new_weights import NewWeights
 from ui.record_weights import RecordWeights
-from ui.settings import Settings
+from ui.settings.settings import Settings
 
 class Layout:
     def __init__(self, root):
