@@ -14,12 +14,18 @@ class RecordWeights:
         self.root = root
         self.db = ScaleDB()
         self.selected_id = ""
+        # pagination state
+        self.page_size = 12
+        self.current_page = 1
+        self.total_pages = 1
+        self.current_search = ""
         self.load_images()
         RecordSearch(self).build()
         self.container = CTkFrame(self.root, fg_color="transparent")
         self.container.pack(fill="both", expand=True, padx=10, pady=10)
-        self.load_data()
+        # build actions first (contains pagination UI) then load data
         RecordActions(self).build()
+        self.load_data()
 
     def load_images(self):
         self.search_icon = load_image("assets/search_icon.png", (20, 20))
@@ -40,39 +46,27 @@ class RecordWeights:
         if not hasattr(self, "tree"):
             return
 
-        # مسح العناصر الحالية في الشجرة
+        # reset search and pagination
+        self.current_search = query
+        self.current_page = 1
+
+        # clear existing rows
         for item in self.tree.get_children():
             self.tree.delete(item)
 
-        # جلب كل البيانات
-        rows = self.db.get_scales()
-
-        if query == "":
-            # عرض البيانات كلها
-            for row in rows:
-                self.tree.insert("", "end", values=(
-                    row[0], row[1], row[2], row[5], row[8]
-                ))
-            return
-
-        # فلترة النتائج
-        filtered = []
-        for row in rows:
-            _id = str(row[0])
-            name = row[1]
-
-            if query.lower() in _id.lower() or query.lower() in name.lower():
-                filtered.append(row)
-
-        # تعبئة النتائج
-        if len(filtered) == 0:
+        # fetch total and first page for search
+        total = self.db.get_scales_count(search=query)
+        if total == 0:
+            self._update_pagination(0)
             self.tree.insert("", "end", values=("", "", "❌ لا يوجد نتائج مطابقة لعبارة البحث", "", ""))
             return
-        
-        for row in filtered:
-            self.tree.insert("", "end", values=(
-                row[0], row[1], row[2], row[5], row[8]
-            ))
+
+        offset = (self.current_page - 1) * self.page_size
+        rows = self.db.get_scales(limit=self.page_size, offset=offset, search=query)
+        self._update_pagination(total)
+
+        for row in rows:
+            self.tree.insert("", "end", values=(row[0], row[1], row[2], row[5], row[8]))
 
     def to_new_record(self):
         clear_frame(self.root)
@@ -94,8 +88,11 @@ class RecordWeights:
         for item in self.tree.get_children():
             self.tree.delete(item)
 
-        rows = self.db.get_scales()
-        
+        offset = (self.current_page - 1) * self.page_size
+        rows = self.db.get_scales(limit=self.page_size, offset=offset, search=self.current_search)
+        total = self.db.get_scales_count(search=self.current_search)
+        self._update_pagination(total)
+
         for row in rows:
             self.tree.insert("", "end", values=(
                 row[0], row[1], row[2], row[5], row[8]
@@ -105,7 +102,9 @@ class RecordWeights:
     # تحميل البيانات 
     # =====================================================
     def load_data(self):
-        rows = self.db.get_scales()
+        # calculate total and load the current page
+        total = self.db.get_scales_count(search=self.current_search)
+        rows = self.db.get_scales(limit=self.page_size, offset=(self.current_page - 1) * self.page_size, search=self.current_search)
         
         # تصميم رسالة عدم وجود بيانات
         if len(rows) == 0:
@@ -160,6 +159,9 @@ class RecordWeights:
 
             self.tree.insert("", "end", values=(_id, name, load, first_w, last_w))
 
+        # update page label
+        self._update_pagination(total)
+
     # =====================================================
     # إطار الأزرار 
     # =====================================================
@@ -173,6 +175,34 @@ class RecordWeights:
         values = self.tree.item(item, "values")
         if values and values[0] != "":
             self.selected_id = values[0]
+
+    # =====================================================
+    # Pagination helpers
+    # =====================================================
+    def _update_pagination(self, total_rows: int):
+        # calculate total pages and sanitize current_page
+        self.total_pages = max(1, (total_rows + self.page_size - 1) // self.page_size)
+        if self.current_page < 1:
+            self.current_page = 1
+        if self.current_page > self.total_pages:
+            self.current_page = self.total_pages
+
+        # update UI label if present
+        if hasattr(self, 'page_label'):
+            try:
+                self.page_label.configure(text=f"صفحة {self.current_page}/{self.total_pages}")
+            except Exception:
+                pass
+
+    def next_page(self):
+        if self.current_page < self.total_pages:
+            self.current_page += 1
+            self.reload_treeview()
+
+    def prev_page(self):
+        if self.current_page > 1:
+            self.current_page -= 1
+            self.reload_treeview()
 
     def delete_weight(self):
         if not self.selected_id:
