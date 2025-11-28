@@ -4,16 +4,10 @@ Keep this module small and importable by the UI. It returns a list
 of port names (e.g., COM3 or /dev/ttyUSB0) that can be used to populate
 an options menu.
 """
-
-from typing import List
-
-try:
-    import serial.tools.list_ports
-except Exception:
-    serial = None
+import serial.tools.list_ports
 
 
-def get_serial_ports() -> List[str]:
+def get_serial_ports():
     """Return a list of available serial port device names.
 
     If the serial library isn't available, return an empty list so the UI
