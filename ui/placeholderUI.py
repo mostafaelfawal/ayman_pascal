@@ -13,7 +13,7 @@ class PlaceholderUI:
         # Title
         CTkLabel(
             self.root,
-            text="لإدارة موازين باسكول",
+            text="لإدارة موازين بسكول",
             font=("Arial", 50, "bold"),
         ).pack(pady=20)
 

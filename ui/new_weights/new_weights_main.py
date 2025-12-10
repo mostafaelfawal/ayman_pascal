@@ -1,5 +1,5 @@
 from customtkinter import CTkFrame
-from tkinter.messagebox import askokcancel, showinfo, showerror
+from tkinter.messagebox import askokcancel, showinfo, showerror, askquestion
 from re import search
 import serial
 import time
@@ -7,6 +7,7 @@ from threading import Thread
 from models.scale import ScaleDB
 from utils.print_scale import print_scale
 from utils.settings_work import get_setting_by_key
+from utils.print_scale_thermal import print_scale_thermal
 from ui.new_weights.scale_display import ScaleDisplay
 from ui.new_weights.weight_frames import WeightFrames
 from ui.new_weights.form_fields import FormFields
@@ -63,7 +64,7 @@ class NewWeights:
         actions = {
             'save_and_print': lambda: self.save_and_print(),
             'save_scale': lambda: self.save_scale(),
-            'print_scale': lambda: print_scale(self.entries, self.scale_display.net_weight),
+            'print_scale': lambda: self.chiose_printer_type(),
             'cancel_process': lambda: self.cancel_process()
         }
         self.action_buttons = ActionButtons(self.main_container, self.colors, self.main_font, actions)
@@ -111,9 +112,18 @@ class NewWeights:
                 
     def save_and_print(self):
         if self.save_scale(False):
-            print_scale(self.entries, self.scale_display.net_weight)
+            self.chiose_printer_type()
             self.clear_all()
 
+    def chiose_printer_type(self):
+        answer = askquestion("اختيار نوع الطابعة", "هل الطابعة عادية؟")
+
+        if answer == 'yes':
+            print_scale(self.entries, self.scale_display.net_weight)
+        else:
+            print_scale_thermal(self.entries, self.scale_display.net_weight)
+
+    
     def _start_serial_thread(self):
         Thread(target=self._serial_worker, daemon=True).start()
 
