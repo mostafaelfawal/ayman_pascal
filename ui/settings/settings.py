@@ -102,11 +102,17 @@ class Settings:
     def save_settings(self):
         """حفظ الإعدادات"""
         update_settings_by_key("is_security", self.is_security.get())
+        
         # حفظ بيانات الشركة
         try:
             update_settings_by_key("company_name", self.company_name_entry.get().strip())
             update_settings_by_key("company_phone", self.company_phone_entry.get().strip())
             update_settings_by_key("company_email", self.company_email_entry.get().strip())
+            
+            # حفظ مسار الشعار
+            if hasattr(self, 'company_logo_path'):
+                update_settings_by_key("company_logo", self.company_logo_path)
+            
             # حفظ اعدادات الميزان (منفذ و Baud Rate)
             try:
                 port_value = self.scale_port_option.get()
@@ -123,7 +129,8 @@ class Settings:
                 update_settings_by_key("scale_baudrate", baud)
             except Exception:
                 pass
-        except Exception:
-            # إذا الحقول غير موجودة (حفظ قد يكون قادم من نسخة قديمة)، تجاوب بهدوء
-            pass
+        except Exception as e:
+            # إذا الحقول غير موجودة (حفظ قد يكون قادم من نسخة قديمة)
+            print(f"Error saving company info: {e}")
+            
         showinfo("نجاح", "تم حفظ الإعدادات بنجاح!")

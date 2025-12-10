@@ -1,9 +1,10 @@
 {
-    "password": "$2b$12$CFShW1AekdTzSEXx.nHcRujlmAwULWS8Hue7MyLnwQifbYJQL71qG",
-    "is_security": true,
-    "company_name": "Mostafa Hamdi",
-    "company_phone": "01151083509",
-    "company_email": "armostafa982@gmail.com",
+    "password": "$2b$12$CcAZCztUhF0FfozJwLvRR.WTNUw9LiQb//s/o5ag8T/34IJceB.U6",
+    "is_security": false,
+    "company_name": "",
+    "company_phone": "",
+    "company_email": "",
+    "company_logo": "",
     "scale_port": "COM1",
     "scale_baudrate": "9600"
 }

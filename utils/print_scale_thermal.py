@@ -5,7 +5,7 @@ import arabic_reshaper
 from bidi.algorithm import get_display
 from datetime import datetime
 from utils.settings_work import get_setting_by_key
-from tkinter.messagebox import showinfo
+from tkinter.messagebox import showinfo, showerror
 
 # مسار الخط العربي
 FONT_PATH = "assets/fonts/Amiri-Regular.ttf" 
@@ -20,7 +20,8 @@ def generate_arabic_invoice(entries, net_weight, img_width=550):
     company_name = get_setting_by_key("company_name") or "Ayman pascal"
     company_phone = get_setting_by_key("company_phone") or "01008454579"
     company_email = get_setting_by_key("company_email") or "ayman_scale@gmail.com"
-
+    company_logo = get_setting_by_key("company_logo") or "assets/icon.png"
+    
     # بيانات العميل
     client_name = entries["اسم العميل"].get()
     vehicle_number = entries["رقم السيارة"].get()
@@ -49,7 +50,7 @@ def generate_arabic_invoice(entries, net_weight, img_width=550):
 
     # ===== Logo الشركة =====
     try:
-        logo = Image.open(LOGO_PATH)
+        logo = Image.open(company_logo)
         # تصغير اللوجو إذا كان أكبر من المساحة
         logo.thumbnail((img_width - 40, 150))
         img.paste(logo, ((img_width - logo.width)//2, y))
@@ -169,5 +170,8 @@ def print_image_to_printer(img, printer_name="GP-L80180 Series"):
 def print_scale_thermal(entries, net_weight):
     """بناء وطباعة الفاتورة الاحترافية"""
     img = generate_arabic_invoice(entries, net_weight)
-    print_image_to_printer(img)
-    showinfo("تم", "تمت طباعة الفاتوره")
+    try:
+        print_image_to_printer(img)
+        showinfo("تم", "تمت طباعة الفاتوره")
+    except Exception as e:
+        showerror("خطأ", f"حدث خطأ اثناء انشاء الفاتوره: {e}")

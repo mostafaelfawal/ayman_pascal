@@ -14,7 +14,7 @@ def ensure_file_exists():
             "company_name": "أيمن للموازين",
             "company_phone": "01008454579",
             "company_email": "ayman_scale@gmail.com",
-            # serial/scale defaults
+            "company_logo": "assets/icon.png",
             "scale_port": "COM1",
             "scale_baudrate": "9600"
         }, open(FILE, "w"), indent=4)
