@@ -3,153 +3,159 @@ import win32ui
 from PIL import Image, ImageDraw, ImageFont, ImageWin
 import arabic_reshaper
 from bidi.algorithm import get_display
-from datetime import datetime
 from utils.settings_work import get_setting_by_key
+from utils.calc_net_weight import calc_net_weight
 from tkinter.messagebox import showinfo, showerror
 
-# مسار الخط العربي
-FONT_PATH = "assets/fonts/Amiri-Regular.ttf" 
+FONT_PATH = "assets/fonts/Amiri-Bold.ttf"
 
-# PNG or BMP
-LOGO_PATH = "assets/icon.png"
 
-def generate_arabic_invoice(entries, net_weight, img_width=550):
-    """توليد فاتورة عربية احترافية بصورة"""
+def ar(text, font):
+    """كتابة النص العربي مظبوط"""
+    reshaped = arabic_reshaper.reshape(str(text))
+    bidi = get_display(reshaped)
+    return bidi, font
 
-    # جلب بيانات الشركة
-    company_name = get_setting_by_key("company_name") or "Ayman pascal"
-    company_phone = get_setting_by_key("company_phone") or "01008454579"
-    company_email = get_setting_by_key("company_email") or "ayman_scale@gmail.com"
-    company_logo = get_setting_by_key("company_logo") or "assets/icon.png"
-    
-    # بيانات العميل
-    client_name = entries["اسم العميل"].get()
-    vehicle_number = entries["رقم السيارة"].get()
-    cargo_type = entries["نوع الحمولة"].get()
-    governorate = entries["المحافظة"].get()
+
+def draw_ar(draw, x, y, text, font, fill="black"):
+    reshaped = arabic_reshaper.reshape(str(text))
+    bidi = get_display(reshaped)
+    draw.text((x, y), bidi, font=font, fill=fill)
+
+
+def generate_arabic_invoice(entries, invoice_id, img_width=550):
+
+    # بيانات الشركة
+    company = get_setting_by_key("company_name") or "ايمن للموازين"
+    phone = get_setting_by_key("company_phone") or "01008454579"
+    address = get_setting_by_key("company_address") or "فوه كفر الشيخ - مصر"
+
+    # إدخالات المستخدم
+    client = entries["اسم العميل"].get()
+    car_no = entries["رقم السيارة"].get()
+    cargo = entries["نوع الحمولة"].get()
+    gov = entries["المحافظة"].get()
+
     w1_time = entries["weight1_time"].get()
     w1_date = entries["weight1_date"].get()
     w1_val = entries["weight1_weight"].get()
+
     w2_time = entries["weight2_time"].get()
     w2_date = entries["weight2_date"].get()
     w2_val = entries["weight2_weight"].get()
-    net_w = net_weight.cget("text")
+    net_w = calc_net_weight(w1_val, w2_val)
+    price = entries["السعر"].get()
 
-    now = datetime.now()
-    time_str = now.strftime("%d/%m/%Y - %H:%M:%S")
-
-    # إعداد الصورة
-    img_height = 1500  # ارتفاع مبدئي، سيتم قصه لاحقاً
+    # إعدادات الخط
+    f_title = ImageFont.truetype(FONT_PATH, 42)
+    f_section = ImageFont.truetype(FONT_PATH, 36)
+    f_regular = ImageFont.truetype(FONT_PATH, 30)
+    f_bold = ImageFont.truetype(FONT_PATH, 38)
+    img_height = 2000
     img = Image.new("RGB", (img_width, img_height), "white")
-    draw = ImageDraw.Draw(img)
-    font_title = ImageFont.truetype(FONT_PATH, 36)
-    font_regular = ImageFont.truetype(FONT_PATH, 28)
-    font_small = ImageFont.truetype(FONT_PATH, 24)
+    d = ImageDraw.Draw(img)
 
-    y = 10
+    y = 20
 
-    # ===== Logo الشركة =====
-    try:
-        logo = Image.open(company_logo)
-        # تصغير اللوجو إذا كان أكبر من المساحة
-        logo.thumbnail((img_width - 40, 150))
-        img.paste(logo, ((img_width - logo.width)//2, y))
-        y += logo.height + 10
-    except Exception:
-        pass  # لو مفيش Logo يكمل بدون مشكلة
+    # ====== رأس الفاتورة ======
+    draw_ar(d, 20, y, company, f_title)
+    y += 60
 
-    # ===== اسم الشركة =====
-    company_text = f"{company_name}\nالهاتف: {company_phone}\nالايميل: {company_email}"
-    reshaped = arabic_reshaper.reshape(company_text)
-    bidi_text = get_display(reshaped)
-    for line in bidi_text.split("\n"):
-        bbox = draw.textbbox((0, 0), line, font=font_regular)
-        w = bbox[2] - bbox[0]
-        h = bbox[3] - bbox[1]
-        draw.text(((img_width - w)//2, y), line, font=font_regular, fill="black")
-        y += h + 2
+    draw_ar(d, 20, y, address, f_regular)
+    y += 35
 
-    y += 10
-    draw.line((0, y, img_width, y), fill="black", width=2)
-    y += 10
+    draw_ar(d, 20, y, f"هاتف: {phone}", f_regular)
+    y += 45
 
-    # ===== بيانات العميل مع جدول border =====
-    headers = ["بيانات العميل", "القيمة"]
-    data = [
-        ["اسم العميل", client_name],
-        ["رقم السيارة", vehicle_number],
-        ["نوع الحمولة", cargo_type],
-        ["المحافظة", governorate],
-        ["تاريخ الطباعة", time_str]
-    ]
+    d.line((10, y, img_width-10, y), fill="black", width=2)
+    y += 25
 
-    # رسم الجدول
-    row_height = 40
-    col1_x = 10
-    col2_x = img_width//2 + 10
+    draw_ar(d, 20, y, f"رقم الفاتورة: {invoice_id}", f_section)
+    y += 50
 
-    for row_index, row in enumerate([headers] + data):
-        for col_index, cell in enumerate(row):
-            reshaped_cell = arabic_reshaper.reshape(cell)
-            bidi_cell = get_display(reshaped_cell)
-            font = font_title if row_index == 0 else font_regular
-            x = col1_x if col_index == 0 else col2_x
-            draw.text((x, y), bidi_cell, font=font, fill="black")
-        # رسم الخطوط الأفقية
-        draw.line((0, y + row_height, img_width, y + row_height), fill="black", width=1)
-        y += row_height
-    # رسم الخطوط الرأسية
-    draw.line((img_width//2,  y - row_height*(len(data)+1), img_width//2, y), fill="black", width=1)
+    d.line((10, y, img_width-10, y), fill="black", width=2)
+    y += 25
 
-    y += 10
-    draw.line((0, y, img_width, y), fill="black", width=2)
-    y += 10
+    # ====== بيانات العميل ======
+    draw_ar(d, 20, y, "بيانات العميل", f_section)
+    y += 50
 
-    # ===== بيانات الوزن مع جدول =====
-    headers = ["الوصف", "الوزن", "التاريخ", "الوقت"]
-    weight_data = [
-        ["الوزنة الأولى", w1_val, w1_date, w1_time],
-        ["الوزنة الثانية", w2_val, w2_date, w2_time],
-        ["", net_w, "", ""]
-    ]
+    box_h = 180
+    d.rectangle((10, y, img_width-10, y + box_h), outline="black", width=2)
 
-    col_positions = [10, 140, 300, 450]
+    y += 15
+    draw_ar(d, 20, y, f"اسم العميل: {client}", f_regular)
+    y += 40
+
+    draw_ar(d, 20, y, f"رقم السيارة: {car_no}", f_regular)
+    y += 40
+
+    draw_ar(d, 20, y, f"نوع الحمولة: {cargo}", f_regular)
+    y += 40
+
+    draw_ar(d, 20, y, f"المحافظة: {gov}", f_regular)
+    y += 55
+
+    # ====== قسم الوزن ======
+    d.line((10, y, img_width-10, y), fill="black", width=2)
+    y += 25
+
+    draw_ar(d, 20, y, "تفاصيل الوزن", f_section)
+    y += 50
 
     # رؤوس الجدول
-    for idx, header in enumerate(headers):
-        reshaped_h = arabic_reshaper.reshape(header)
-        bidi_h = get_display(reshaped_h)
-        draw.text((col_positions[idx], y), bidi_h, font=font_regular, fill="black")
-    y += row_height
-    draw.line((0, y, img_width, y), fill="black", width=1)
+    d.rectangle((10, y, img_width-10, y+45), outline="black", width=2)
+    draw_ar(d, 25, y+8, "الوصف", f_regular)
+    draw_ar(d, 180, y+8, "الوزن", f_regular)
+    draw_ar(d, 310, y+8, "التاريخ", f_regular)
+    draw_ar(d, 430, y+8, "الوقت", f_regular)
+    y += 60
 
-    # البيانات
-    for row in weight_data:
-        for idx, cell in enumerate(row):
-            reshaped_cell = arabic_reshaper.reshape(str(cell))
-            bidi_cell = get_display(reshaped_cell)
-            draw.text((col_positions[idx], y), bidi_cell, font=font_regular, fill="black")
-        y += row_height
-        draw.line((0, y, img_width, y), fill="black", width=1)
+    # الصف 1
+    d.rectangle((10, y, img_width-10, y+45), outline="black", width=1)
+    draw_ar(d, 25, y+8, "الوزنة الأولى", f_regular)
+    draw_ar(d, 180, y+8, w1_val, f_regular)
+    draw_ar(d, 310, y+8, w1_date, f_regular)
+    draw_ar(d, 430, y+8, w1_time, f_regular)
+    y += 55
 
-    y += 10
-    # ===== Footer =====
-    footer = "<< برمجة مصطفى حمدي >>"
-    reshaped_footer = arabic_reshaper.reshape(footer)
-    bidi_footer = get_display(reshaped_footer)
-    bbox = draw.textbbox((0, 0), bidi_footer, font=font_small)
-    w = bbox[2] - bbox[0]
-    h = bbox[3] - bbox[1]
-    draw.text(((img_width - w)//2, y), bidi_footer, font=font_small, fill="black")
-    y += h + 10
+    # الصف 2
+    d.rectangle((10, y, img_width-10, y+45), outline="black", width=1)
+    draw_ar(d, 25, y+8, "الوزنة الثانية", f_regular)
+    draw_ar(d, 180, y+8, w2_val, f_regular)
+    draw_ar(d, 310, y+8, w2_date, f_regular)
+    draw_ar(d, 430, y+8, w2_time, f_regular)
+    y += 70
 
-    # قص الصورة للمحتوى فقط
-    img = img.crop((0, 0, img_width, y + 20))
+    # ====== الوزن الصافي ======
+    d.rectangle((10, y, img_width-10, y+85), outline="black", width=3)
+    draw_ar(d, 20, y+10, "الوزن الصافي", f_bold)
+    draw_ar(d, img_width-180, y+5, f"{net_w} كجم", f_bold)
+    y += 110
 
+    # خط سفلي
+    d.line((10, y, img_width-10, y), fill="black", width=2)
+    y += 20
+    # ===== السعر =====
+    d.rectangle((10, y, img_width-10, y+85), outline="black", width=3)
+    draw_ar(d, 20, y+10, "السعر", f_bold)
+    draw_ar(d, img_width-180, y+5, f"{price} جنيه", f_bold)
+    y += 110
+
+    # خط سفلي
+    d.line((10, y, img_width-10, y), fill="black", width=2)
+    y += 20
+
+    # ====== فوتر بسيط ======
+    draw_ar(d, 20, y, "شكراً لثقتكم", f_regular)
+    y += 40
+
+    img = img.crop((0, 0, img_width, y + 10))
     return img
 
+
 def print_image_to_printer(img, printer_name="GP-L80180 Series"):
-    """طباعة الصورة للطابعة الحرارية"""
+
     hprinter = win32print.OpenPrinter(printer_name)
     hdc = win32ui.CreateDC()
     hdc.CreatePrinterDC(printer_name)
@@ -162,16 +168,14 @@ def print_image_to_printer(img, printer_name="GP-L80180 Series"):
 
     hdc.EndPage()
     hdc.EndDoc()
-
-    # قص الورق
-
     win32print.ClosePrinter(hprinter)
 
-def print_scale_thermal(entries, net_weight):
-    """بناء وطباعة الفاتورة الاحترافية"""
-    img = generate_arabic_invoice(entries, net_weight)
+
+def print_scale_thermal(entries, invoice_id="INV-001"):
     try:
+        img = generate_arabic_invoice(entries, invoice_id)
         print_image_to_printer(img)
-        showinfo("تم", "تمت طباعة الفاتوره")
+        showinfo("تم", f"تمت طباعة الفاتورة رقم {invoice_id}")
     except Exception as e:
-        showerror("خطأ", f"حدث خطأ اثناء انشاء الفاتوره: {e}")
+        print(e)
+        showerror("خطأ", f"حدث خطأ أثناء الطباعة: {e}")

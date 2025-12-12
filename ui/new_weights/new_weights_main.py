@@ -104,6 +104,7 @@ class NewWeights:
             self.entries["weight2_time"].get(),
             self.entries["weight2_date"].get(),
             self.entries["weight2_weight"].get(),
+            self.entries["السعر"].get()
             )
         showinfo("تم", "تم حفظ الوزنة بنجاح")
         if delete_feild:
@@ -121,7 +122,8 @@ class NewWeights:
         if answer == 'yes':
             print_scale(self.entries, self.scale_display.net_weight)
         else:
-            print_scale_thermal(self.entries, self.scale_display.net_weight)
+            INV_num = self.db.get_invoice_num()
+            print_scale_thermal(self.entries, INV_num)
 
     
     def _start_serial_thread(self):

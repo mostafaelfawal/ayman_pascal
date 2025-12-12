@@ -108,10 +108,7 @@ class Settings:
             update_settings_by_key("company_name", self.company_name_entry.get().strip())
             update_settings_by_key("company_phone", self.company_phone_entry.get().strip())
             update_settings_by_key("company_email", self.company_email_entry.get().strip())
-            
-            # حفظ مسار الشعار
-            if hasattr(self, 'company_logo_path'):
-                update_settings_by_key("company_logo", self.company_logo_path)
+            update_settings_by_key("company_address", self.company_address.get().strip())
             
             # حفظ اعدادات الميزان (منفذ و Baud Rate)
             try:

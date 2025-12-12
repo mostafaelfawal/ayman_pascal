@@ -10,14 +10,13 @@ class FormFields:
         self.build_form_fields()
     
     def build_form_fields(self):
-        frame_style = {
-            "corner_radius": 12,
-            "border_width": 2,
-            "border_color": "#3b82f6",
-            "fg_color": "#1e293b"
-        }
-        
-        frame = CTkFrame(self.parent, **frame_style)
+        frame = CTkFrame(
+            self.parent,
+            corner_radius=12,
+            border_width=2,
+            border_color="#3b82f6",
+            fg_color="#1e293b"
+        )
         frame.pack(fill="x", pady=(0, 10))
 
         CTkLabel(
@@ -27,40 +26,52 @@ class FormFields:
             text_color=self.colors["text_primary"]
         ).pack(pady=(10, 5))
 
-        form_container = CTkFrame(frame, fg_color="transparent")
-        form_container.pack(fill="x", padx=15, pady=10)
+        container = CTkFrame(frame, fg_color="transparent")
+        container.pack(fill="x", padx=15, pady=10)
 
-        form_fields = [
-            ("اسم العميل", 0),
-            ("رقم السيارة", 1),
-            ("نوع الحمولة", 2),
-            ("المحافظة", 3),
+        # كل عنصر هو Label
+        labels = [
+            "اسم العميل",
+            "رقم السيارة",
+            "نوع الحمولة",
+            "المحافظة",
+            "السعر",
         ]
 
-        for label_text, row in form_fields:
-            self._create_form_field(form_container, label_text, row)
+        # Loop كل حقلين في صف واحد
+        row = 0
+        col = 0
 
-    def _create_form_field(self, parent, text, row):
-        widget = CTkEntry(
-            parent,
-            height=35,
-            placeholder_text=f"...أدخل {text}",
-            font=self.main_font,
-            justify="right",
-            corner_radius=8,
-            border_width=1,
-            border_color="#475569"
-        )
-        widget.grid(row=row, column=0, padx=(0, 10), pady=5, sticky="ew")
+        for label_text in labels:
+            # Label
+            CTkLabel(
+                container,
+                text=f"{label_text}:",
+                font=self.main_font,
+                text_color=self.colors["text_secondary"]
+            ).grid(row=row, column=col, padx=(10, 5), pady=6, sticky="e")
 
-        self.entries[text] = widget
+            # Entry
+            entry = CTkEntry(
+                container,
+                height=35,
+                placeholder_text=f"...أدخل {label_text}",
+                font=self.main_font,
+                justify="right",
+                corner_radius=8,
+                border_width=1,
+                border_color="#475569"
+            )
+            entry.grid(row=row, column=col + 1, padx=(0, 20), pady=6, sticky="ew")
 
-        CTkLabel(
-            parent,
-            text=f":{text}",
-            font=self.main_font,
-            text_color=self.colors["text_secondary"]
-        ).grid(row=row, column=1, padx=(10, 0), pady=5, sticky="w")
+            self.entries[label_text] = entry
 
-        parent.grid_columnconfigure(0, weight=3)
-        parent.grid_columnconfigure(1, weight=1)
+            # بعد كل حقلين ننتقل لصف جديد
+            col += 2
+            if col >= 4:
+                col = 0
+                row += 1
+
+        # جعل الأعمدة تتمدد بالتساوي
+        container.grid_columnconfigure(1, weight=1)
+        container.grid_columnconfigure(3, weight=1)

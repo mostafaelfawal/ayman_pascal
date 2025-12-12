@@ -1,7 +1,6 @@
 from customtkinter import CTkToplevel, CTkLabel, CTkEntry, CTkButton, CTkFrame, CTkScrollableFrame
 from models.scale import ScaleDB
 from tkinter.messagebox import showinfo, showerror
-
 class EditWeight:
     def __init__(self, id, reload_treeview):
         self.current_id = id
@@ -58,7 +57,8 @@ class EditWeight:
                 "section": "الوزن",
                 "fields": [
                     {"label": "الوزن الأول (كجم):", "placeholder": "الوزن الأول", "data_index": 5, "var_name": "first_weight_entry"},
-                    {"label": "الوزن الأخير (كجم):", "placeholder": "الوزن الأخير", "data_index": 8, "var_name": "last_weight_entry"}
+                    {"label": "الوزن الأخير (كجم):", "placeholder": "الوزن الأخير", "data_index": 8, "var_name": "last_weight_entry"},
+                    {"label": "السعر:", "placeholder": "السعر", "data_index": 11, "var_name": "price_entry"}
                 ],
                 "layout": "grid"  # تخطيط خاص لقسم الأوزان
             }
@@ -93,22 +93,24 @@ class EditWeight:
 
     def create_weight_fields(self, parent, fields):
         """إنشاء حقول الأوزان بتخطيط شبكي"""
-        weights_grid = CTkFrame(parent, fg_color="transparent")
-        weights_grid.pack(fill="x")
-        
-        # إنشاء عمودين للأوزان
-        columns = []
-        for i in range(2):
-            col = CTkFrame(weights_grid, fg_color="transparent")
-            side = "right" if i == 0 else "right"
-            padx = (10, 5) if i == 0 else (5, 10)
-            col.pack(side=side, fill="x", expand=True, padx=padx)
-            columns.append(col)
-        
-        # توزيع الحقول على الأعمدة
-        for i, field in enumerate(fields):
-            self.create_field(columns[i], field)
+        grid = CTkFrame(parent, fg_color="transparent")
+        grid.pack(fill="x")
 
+        # الصف الأول: الوزن الأول + الوزن الأخير
+        for col, field in enumerate(fields[:2]):
+            col_frame = CTkFrame(grid, fg_color="transparent")
+            col_frame.grid(row=0, column=col, padx=10, pady=5, sticky="nsew")
+            self.create_field(col_frame, field)
+
+        # الصف الثاني: السعر
+        price_frame = CTkFrame(grid, fg_color="transparent")
+        price_frame.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+        self.create_field(price_frame, fields[2])
+
+        # توزيع الأعمدة
+        grid.grid_columnconfigure(0, weight=1)
+        grid.grid_columnconfigure(1, weight=1)
+        
     def create_field(self, parent, field_config):
         """إنشاء حقل إدخال واحد"""
         # التسمية
@@ -191,14 +193,14 @@ class EditWeight:
         return empty_fields
 
     def get_field_values(self):
-        """الحصول على قيم جميع الحقول"""
         return {
             "customer_name": self.entries["customer_name_entry"]["widget"].get().strip(),
             "load_type": self.entries["load_type_entry"]["widget"].get().strip(),
             "car_number": self.entries["car_number_entry"]["widget"].get().strip(),
             "governorate": self.entries["governorate_entry"]["widget"].get().strip(),
             "first_weight": self.entries["first_weight_entry"]["widget"].get().strip(),
-            "last_weight": self.entries["last_weight_entry"]["widget"].get().strip()
+            "last_weight": self.entries["last_weight_entry"]["widget"].get().strip(),
+            "price": self.entries["price_entry"]["widget"].get().strip(),
         }
 
     def save_changes(self):
@@ -227,7 +229,8 @@ class EditWeight:
                 field_values["governorate"], 
                 first_time, first_date, field_values["first_weight"], 
                 last_time, last_date, field_values["last_weight"], 
-                self.current_id
+                self.current_id,
+                field_values["price"]
             )
 
             # إظهار رسالة نجاح وإعادة التحميل
