@@ -6,166 +6,120 @@ from bidi.algorithm import get_display
 from utils.settings_work import get_setting_by_key
 from utils.calc_net_weight import calc_net_weight
 from tkinter.messagebox import showinfo, showerror
+import datetime
+from math import ceil
 
-FONT_PATH = "assets/fonts/Amiri-Bold.ttf"
+FONT_BOLD = "assets/fonts/Amiri-Bold.ttf"
+FONT_REG = "assets/fonts/Amiri-Regular.ttf"
 
 
-def ar(text, font):
-    """كتابة النص العربي مظبوط"""
+def ar(text):
     reshaped = arabic_reshaper.reshape(str(text))
-    bidi = get_display(reshaped)
-    return bidi, font
+    return get_display(reshaped)
 
 
-def draw_ar(draw, x, y, text, font, fill="black"):
-    reshaped = arabic_reshaper.reshape(str(text))
-    bidi = get_display(reshaped)
-    draw.text((x, y), bidi, font=font, fill=fill)
+def draw_ar(d, x, y, text, font, fill="black", anchor="ra"):
+    d.text((x, y), ar(text), font=font, fill=fill, anchor=anchor)
+
+
+def draw_center_ar(d, x, y, text, font):
+    bbox = d.textbbox((0, 0), ar(text), font=font)
+    w = bbox[2] - bbox[0]
+    d.text((x - w / 2, y), ar(text), font=font, fill="black")
 
 
 def generate_arabic_invoice(entries, invoice_id, img_width=550):
 
-    # بيانات الشركة
-    company = get_setting_by_key("company_name") or "ايمن للموازين"
-    phone = get_setting_by_key("company_phone") or "01008454579"
-    address = get_setting_by_key("company_address") or "فوه كفر الشيخ - مصر"
+    company = get_setting_by_key("company_name") or "مضرب وبسكول عوض للاستيراد والتصدير"
+    phone = get_setting_by_key("company_phone") or "01000000000"
+    address = get_setting_by_key("company_address") or "فوه - كفر الشيخ"
 
-    # إدخالات المستخدم
     client = entries["اسم العميل"].get()
     car_no = entries["رقم السيارة"].get()
     cargo = entries["نوع الحمولة"].get()
-    gov = entries["المحافظة"].get()
 
-    w1_time = entries["weight1_time"].get()
-    w1_date = entries["weight1_date"].get()
     w1_val = entries["weight1_weight"].get()
-
-    w2_time = entries["weight2_time"].get()
-    w2_date = entries["weight2_date"].get()
     w2_val = entries["weight2_weight"].get()
     net_w = calc_net_weight(w1_val, w2_val)
+
     price = entries["السعر"].get()
 
-    # إعدادات الخط
-    f_title = ImageFont.truetype(FONT_PATH, 42)
-    f_section = ImageFont.truetype(FONT_PATH, 36)
-    f_regular = ImageFont.truetype(FONT_PATH, 30)
-    f_bold = ImageFont.truetype(FONT_PATH, 38)
-    img_height = 2000
-    img = Image.new("RGB", (img_width, img_height), "white")
-    d = ImageDraw.Draw(img)
-    
-    HEADER_H = 65
-    ROW_H = 65
-    CELL_PADDING_Y = 15
+    today = datetime.datetime.now()
+    date = today.strftime("%Y/%m/%d")
+    time = today.strftime("%H:%M")
 
+    f_title = ImageFont.truetype(FONT_BOLD, 30)
+    f_bold = ImageFont.truetype(FONT_BOLD, 28)
+    f_reg = ImageFont.truetype(FONT_REG, 26)
+    f_big = ImageFont.truetype(FONT_BOLD, 42)
+    f_small = ImageFont.truetype(FONT_REG, 22)
+
+    img = Image.new("1", (img_width, 2000), "white")
+    d = ImageDraw.Draw(img)
     y = 20
 
-    # ====== رأس الفاتورة ======
-    draw_ar(d, 20, y, company, f_title)
-    y += 60
+    # ===== HEADER =====
+    header_h = 140
+    d.rectangle((20, y, img_width - 20, y + header_h), outline="black", width=3)
+    draw_center_ar(d, img_width // 2, y + 15, company, f_title)
+    draw_center_ar(d, img_width // 2, y + 55, address, f_small)
+    draw_center_ar(d, img_width // 2, y + 85, phone, f_small)
+    y += header_h + 20
 
-    draw_ar(d, 20, y, address, f_regular)
-    y += 40
+    # ===== INFO TABLE =====
+    row_h = 55
+    info_rows = [
+        ("الرقم", invoice_id),
+        ("التاريخ", date),
+        ("الوقت", time),
+        ("رقم السيارة", car_no),
+        ("اسم العميل", client),
+        ("نوع الحمولة", cargo),
+    ]
 
-    draw_ar(d, 20, y, f"هاتف: {phone}", f_regular)
-    y += 45
+    for label, value in info_rows:
+        d.rectangle((20, y, img_width - 20, y + row_h), outline="black", width=1)
+        d.line((img_width // 2, y, img_width // 2, y + row_h), fill="black", width=1)
 
-    d.line((10, y, img_width-10, y), fill="black", width=2)
-    y += 25
+        draw_ar(d, img_width - 30, y + 15, label, f_reg)
+        draw_ar(d, img_width // 2 - 20, y + 15, value, f_bold)
+        y += row_h
 
-    draw_ar(d, 20, y, f"رقم الفاتورة: {invoice_id}", f_section)
-    y += 50
-
-    d.line((10, y, img_width-10, y), fill="black", width=2)
-    y += 25
-
-    # ====== بيانات العميل ======
-    box_h = 200
-    d.rectangle((10, y, img_width-10, y + box_h), outline="black", width=2)
-
-    y += 15
-    draw_ar(d, 20, y, f"اسم العميل: {client}", f_regular)
-    y += 40
-
-    draw_ar(d, 20, y, f"رقم السيارة: {car_no}", f_regular)
-    y += 40
-
-    draw_ar(d, 20, y, f"نوع الحمولة: {cargo}", f_regular)
-    y += 40
-
-    draw_ar(d, 20, y, f"المحافظة: {gov}", f_regular)
-    y += 75
-
-    # ====== قسم الوزن ======
-    d.line((10, y, img_width-10, y), fill="black", width=2)
-    y += 25
-
-    # رؤوس الجدول
-    d.rectangle((10, y, img_width-10, y+HEADER_H), outline="black", width=2)
-
-    draw_ar(d, 25, y + CELL_PADDING_Y, "الوصف", f_regular)
-    draw_ar(d, 180, y + CELL_PADDING_Y, "الوزن", f_regular)
-    draw_ar(d, 310, y + CELL_PADDING_Y, "التاريخ", f_regular)
-    draw_ar(d, 430, y + CELL_PADDING_Y, "الوقت", f_regular)
-
-    y += HEADER_H + 15
-
-    # الصف 1
-    d.rectangle((10, y, img_width-10, y+ROW_H), outline="black", width=1)
-
-    draw_ar(d, 25, y + CELL_PADDING_Y, "الوزنة الأولى", f_regular)
-    draw_ar(d, 180, y + CELL_PADDING_Y, w1_val, f_regular)
-    draw_ar(d, 310, y + CELL_PADDING_Y, w1_date, f_regular)
-    draw_ar(d, 430, y + CELL_PADDING_Y, w1_time, f_regular)
-
-    y += ROW_H + 15
-
-    # الصف 2
-    d.rectangle((10, y, img_width-10, y+ROW_H), outline="black", width=1)
-
-    draw_ar(d, 25, y + CELL_PADDING_Y, "الوزنة الثانية", f_regular)
-    draw_ar(d, 180, y + CELL_PADDING_Y, w2_val, f_regular)
-    draw_ar(d, 310, y + CELL_PADDING_Y, w2_date, f_regular)
-    draw_ar(d, 430, y + CELL_PADDING_Y, w2_time, f_regular)
-
-    y += ROW_H + 25
-
-    # ====== الوزن الصافي ======
-    d.rectangle((10, y, img_width-10, y+85), outline="black", width=3)
-    draw_ar(d, 20, y+10, f"{net_w} كجم", f_bold)
-    draw_ar(d, img_width-180, y+5, "الوزن الصافي", f_bold)
-    y += 110
-
-    # خط سفلي
-    d.line((10, y, img_width-10, y), fill="black", width=2)
-    y += 20
-    # ===== السعر =====
-    d.rectangle((10, y, img_width-10, y+85), outline="black", width=3)
-    draw_ar(d, 20, y+10, f"{price} جنيه", f_bold)
-    draw_ar(d, img_width-90, y+5, "السعر", f_bold)
-    y += 110
-
-    # خط سفلي
-    d.line((10, y, img_width-10, y), fill="black", width=2)
     y += 20
 
-    # ====== فوتر بسيط ======
-    draw_ar(d, 20, y, "Powred by mostafa hamdi", f_regular)
-    y += 40
+    # ===== WEIGHTS =====
+    def weight_box(title, value):
+        nonlocal y
+        h = 90
+        d.rectangle((20, y, img_width - 20, y + h), outline="black", width=2)
+        draw_ar(d, img_width - 30, y + 10, title, f_bold)
+        draw_center_ar(d, img_width // 2, y + 5, value, f_big)
+        y += h + 10
 
-    img = img.crop((0, 0, img_width, y + 10))
+    weight_box("القائم", w1_val)
+    weight_box("الفارغ", w2_val)
+    weight_box("الصافي", ceil(net_w * 100) / 100)
+    weight_box("السعر", "{:.2f}".format(float(price)))
+
+    # ===== FOOTER =====
+    d.line((40, y, img_width - 40, y), fill="black", width=2)
+    y += 25
+    draw_center_ar(d, img_width // 2, y, "Powered by Mostafa Hamdi", f_small)
+
+    img = img.crop((0, 0, img_width, y + 40))
     return img
 
 
 def print_image_to_printer(img, printer_name="GP-L80180 Series"):
-
     hprinter = win32print.OpenPrinter(printer_name)
     hdc = win32ui.CreateDC()
     hdc.CreatePrinterDC(printer_name)
 
-    hdc.StartDoc("Arabic Receipt")
+    hdc.StartDoc("Thermal Invoice")
     hdc.StartPage()
+
+    if img.mode != "1":
+        img = img.convert("1")
 
     dib = ImageWin.Dib(img)
     dib.draw(hdc.GetHandleOutput(), (0, 0, img.width, img.height))
@@ -179,6 +133,6 @@ def print_scale_thermal(entries, invoice_id="INV-001"):
     try:
         img = generate_arabic_invoice(entries, invoice_id)
         print_image_to_printer(img)
-        showinfo("تم", f"تمت طباعة الفاتورة رقم {invoice_id}")
+        showinfo("تم", "✅ تمت الطباعة بنجاح")
     except Exception as e:
-        showerror("خطأ", f"حدث خطأ أثناء الطباعة: {e}")
+        showerror("خطأ", str(e))

@@ -1,5 +1,5 @@
 from customtkinter import CTkFrame, CTkButton
-from tkinter.messagebox import askokcancel
+from tkinter.messagebox import askokcancel, showinfo
 from utils.load_image import load_image
 from utils.clear_frame import clear_frame
 from ui.placeholderUI import PlaceholderUI
@@ -16,6 +16,7 @@ class Layout:
         self.tabs = [
             {"title": "وزنة جديده", "icon": "assets/وزنة جديده.png", "com": lambda: self.toggle_ui(NewWeights)},
             {"title": "سجل الأوزان", "icon": "assets/سجل الأوزان.png", "com": lambda: self.toggle_ui(RecordWeights)},
+            {"title": "التقارير", "icon": "assets/التقارير.png", "com": lambda: showinfo("التقارير", "سيتم توفير هذه الميزه قريبا")},
             {"title": "الأعدادات", "icon": "assets/الأعدادات.png", "com": lambda: self.toggle_ui(Settings)}
         ]
 
