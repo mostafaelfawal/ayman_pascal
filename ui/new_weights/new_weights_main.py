@@ -1,9 +1,5 @@
 from customtkinter import CTkFrame
-from tkinter.messagebox import askokcancel, showinfo, showerror, askquestion
-from re import search
-import serial
-import time
-from threading import Thread
+from tkinter.messagebox import askokcancel, showinfo, showerror
 from models.scale import ScaleDB
 from utils.print_scale import print_scale
 from utils.settings_work import get_setting_by_key
@@ -137,10 +133,10 @@ class NewWeights:
             self.clear_all()
 
     def chiose_printer_type(self):
-        answer = askquestion("اختيار نوع الطابعة", "هل الطابعة عادية؟")
+        printer_type = get_setting_by_key("printer_type") or "thermal"
 
-        if answer == 'yes':
-            print_scale(self.entries, self.scale_display.net_weight)
-        else:
+        if printer_type == 'thermal':
             INV_num = self.db.get_invoice_num()
             print_scale_thermal(self.entries, INV_num)
+        else:
+            print_scale(self.entries, self.scale_display.net_weight)

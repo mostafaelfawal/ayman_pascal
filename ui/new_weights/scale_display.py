@@ -1,5 +1,5 @@
 from customtkinter import CTkLabel, CTkEntry, CTkFrame, StringVar
-
+from utils.calc_net_weight import calc_net_weight
 class ScaleDisplay:
     def __init__(self, parent, colors, title_font, digital_font):
         self.parent = parent
@@ -48,10 +48,7 @@ class ScaleDisplay:
     
     def update_net_weight(self, w1, w2):
         try:
-            if w1 > w2:
-                net = w1 - w2
-            else:
-                net = w2 - w1
+            net = calc_net_weight(w1, w2)
             self.net_weight.configure(text=f"الصافي = {net:.2f} كجم")
         except ValueError:
             self.net_weight.configure(text="الصافي = 0.00 كجم")

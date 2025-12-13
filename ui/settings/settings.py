@@ -149,6 +149,7 @@ class Settings:
                 count = int(self.invoices_per_entry.get())
                 update_settings_by_key("invoices_per_print", count)
             except:
+                showerror('خطأ', "ادخل عدد صحيح في\n عدد الفواتير لكل طباعه ")
                 update_settings_by_key("invoices_per_print", 1)
 
         except Exception as e:

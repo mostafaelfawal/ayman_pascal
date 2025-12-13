@@ -108,7 +108,7 @@ def generate_arabic_invoice(entries, invoice_id, img_width=550):
     return img
 
 
-def print_image_to_printer(img, printer_name="GP-L80180 Series"):
+def print_image_to_printer(img, printer_name):
     hprinter = win32print.OpenPrinter(printer_name)
     hdc = win32ui.CreateDC()
     hdc.CreatePrinterDC(printer_name)
@@ -126,11 +126,16 @@ def print_image_to_printer(img, printer_name="GP-L80180 Series"):
     hdc.EndDoc()
     win32print.ClosePrinter(hprinter)
 
+def print_scale_thermal(entries, invoice_id):
+    printer_name = get_setting_by_key("printer_name")
+    invoices_per_print = int(get_setting_by_key("invoices_per_print"))
 
-def print_scale_thermal(entries, invoice_id="INV-001"):
     try:
-        img = generate_arabic_invoice(entries, invoice_id)
-        print_image_to_printer(img)
-        showinfo("تم", "✅ تمت الطباعة بنجاح")
+        for _ in range(invoices_per_print):
+            img = generate_arabic_invoice(entries, invoice_id)
+            print_image_to_printer(img, printer_name)
+
+        showinfo("تم", f"✅ تمت طباعة {invoices_per_print} نسخة بنجاح")
+
     except Exception as e:
-        showerror("خطأ", str(e))
+        showerror("خطأ في الطباعة", str(e))
