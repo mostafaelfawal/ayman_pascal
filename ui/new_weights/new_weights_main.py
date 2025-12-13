@@ -83,9 +83,18 @@ class NewWeights:
             
     def clear_all(self):
         for entry in self.entries.values():
-            if hasattr(entry, 'delete'):  # للتأكد أنه عنصر إدخال
+            if hasattr(entry, 'delete'):
                 entry.delete(0, "end")
+
         self.scale_display.scale_var.set("0.00")
+
+        # 🔴 إعادة تهيئة اتصال الميزان
+        if self.ser:
+            try:
+                self.ser.reset_input_buffer()
+                self.ser.reset_output_buffer()
+            except:
+                pass
 
     def save_scale(self, delete_feild=True):
         for entry in self.entries.values():
@@ -109,6 +118,13 @@ class NewWeights:
         showinfo("تم", "تم حفظ الوزنة بنجاح")
         if delete_feild:
             self.clear_all()
+
+        if self.ser:
+            try:
+                self.ser.close()
+            except:
+                pass
+            self.ser = None
         return True
                 
     def save_and_print(self):
@@ -144,21 +160,28 @@ class NewWeights:
             time.sleep(0.05)
 
     def _ensure_serial_connected(self):
-        if self.ser and self.ser.is_open:
-            return
+        if self.ser:
+            if self.ser.is_open:
+                return
+            else:
+                try:
+                    self.ser.close()
+                except:
+                    pass
+                self.ser = None
 
         try:
             port = get_setting_by_key("scale_port") or "COM1"
-            scale_baudrate = get_setting_by_key("scale_baudrate") or 9600
+            scale_baudrate = int(get_setting_by_key("scale_baudrate") or 9600)
             self.ser = serial.Serial(
-                port= port,
+                port=port,
                 baudrate=scale_baudrate,
                 parity=serial.PARITY_NONE,
                 stopbits=serial.STOPBITS_ONE,
                 bytesize=serial.EIGHTBITS,
                 timeout=1
             )
-        except Exception:
+        except Exception as e:
             self.ser = None
             time.sleep(3)
 

@@ -126,8 +126,6 @@ class Settings:
                 update_settings_by_key("scale_baudrate", baud)
             except Exception:
                 pass
-        except Exception as e:
-            # إذا الحقول غير موجودة (حفظ قد يكون قادم من نسخة قديمة)
-            print(f"Error saving company info: {e}")
-            
+        except:
+            pass
         showinfo("نجاح", "تم حفظ الإعدادات بنجاح!")

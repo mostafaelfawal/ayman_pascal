@@ -63,8 +63,7 @@ def print_scale(entries, net_weight):
                 c.drawString(x - text_width/2, y, bidi_text)
             else:  # left
                 c.drawString(x, y, bidi_text)
-        except Exception as e:
-            print(f"Error drawing text: {e}")
+        except:
             c.setFont(font_name, font_size)
             c.setFillColor(color)
             if alignment == 'center':

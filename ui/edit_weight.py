@@ -239,5 +239,4 @@ class EditWeight:
             self.reload_treeview()
             
         except Exception as e:
-            print(f"خطأ في الحفظ: {e}")
             showerror("خطأ", f"حدث خطأ أثناء الحفظ: {str(e)}")
