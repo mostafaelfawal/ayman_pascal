@@ -29,29 +29,16 @@ class FormFields:
         container = CTkFrame(frame, fg_color="transparent")
         container.pack(fill="x", padx=15, pady=10)
 
-        # كل عنصر هو Label
         labels = [
             "اسم العميل",
             "رقم السيارة",
             "نوع الحمولة",
-            "المحافظة",
-            "السعر",
+            "المحافظة"
         ]
 
-        # Loop كل حقلين في صف واحد
         row = 0
-        col = 0
-
         for label_text in labels:
-            # Label
-            CTkLabel(
-                container,
-                text=f"{label_text}:",
-                font=self.main_font,
-                text_color=self.colors["text_secondary"]
-            ).grid(row=row, column=col, padx=(10, 5), pady=6, sticky="e")
-
-            # Entry
+            # Entry أولاً
             entry = CTkEntry(
                 container,
                 height=35,
@@ -62,16 +49,18 @@ class FormFields:
                 border_width=1,
                 border_color="#475569"
             )
-            entry.grid(row=row, column=col + 1, padx=(0, 20), pady=6, sticky="ew")
-
+            entry.grid(row=row, column=0, padx=(0, 10), pady=5, sticky="ew")
             self.entries[label_text] = entry
 
-            # بعد كل حقلين ننتقل لصف جديد
-            col += 2
-            if col >= 4:
-                col = 0
-                row += 1
+            # Label بعد Entry
+            CTkLabel(
+                container,
+                text=f": {label_text}",
+                font=self.main_font,
+                text_color=self.colors["text_secondary"]
+            ).grid(row=row, column=1, padx=(0, 10), pady=5, sticky="w")
+
+            row += 1
 
         # جعل الأعمدة تتمدد بالتساوي
-        container.grid_columnconfigure(1, weight=1)
-        container.grid_columnconfigure(3, weight=1)
+        container.grid_columnconfigure(0, weight=1)

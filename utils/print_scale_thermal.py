@@ -42,7 +42,6 @@ def generate_arabic_invoice(entries, invoice_id, img_width=550):
     w2_val = entries["weight2_weight"].get()
     net_w = calc_net_weight(w1_val, w2_val)
 
-    price = entries["السعر"].get()
 
     today = datetime.datetime.now()
     date = today.strftime("%Y/%m/%d")
@@ -99,7 +98,6 @@ def generate_arabic_invoice(entries, invoice_id, img_width=550):
     weight_box("القائم", w1_val)
     weight_box("الفارغ", w2_val)
     weight_box("الصافي", ceil(net_w * 100) / 100)
-    weight_box("السعر", "{:.2f}".format(float(price)))
 
     # ===== FOOTER =====
     d.line((40, y, img_width - 40, y), fill="black", width=2)

@@ -57,8 +57,7 @@ class EditWeight:
                 "section": "الوزن",
                 "fields": [
                     {"label": "الوزن الأول (كجم):", "placeholder": "الوزن الأول", "data_index": 5, "var_name": "first_weight_entry"},
-                    {"label": "الوزن الأخير (كجم):", "placeholder": "الوزن الأخير", "data_index": 8, "var_name": "last_weight_entry"},
-                    {"label": "السعر:", "placeholder": "السعر", "data_index": 11, "var_name": "price_entry"}
+                    {"label": "الوزن الأخير (كجم):", "placeholder": "الوزن الأخير", "data_index": 8, "var_name": "last_weight_entry"}
                 ],
                 "layout": "grid"  # تخطيط خاص لقسم الأوزان
             }
@@ -101,11 +100,6 @@ class EditWeight:
             col_frame = CTkFrame(grid, fg_color="transparent")
             col_frame.grid(row=0, column=col, padx=10, pady=5, sticky="nsew")
             self.create_field(col_frame, field)
-
-        # الصف الثاني: السعر
-        price_frame = CTkFrame(grid, fg_color="transparent")
-        price_frame.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
-        self.create_field(price_frame, fields[2])
 
         # توزيع الأعمدة
         grid.grid_columnconfigure(0, weight=1)

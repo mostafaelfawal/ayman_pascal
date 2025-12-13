@@ -118,7 +118,6 @@ class NewWeights:
             self.entries["weight2_time"].get(),
             self.entries["weight2_date"].get(),
             self.entries["weight2_weight"].get(),
-            self.entries["السعر"].get()
             )
         showinfo("تم", "تم حفظ الوزنة بنجاح")
         if delete_feild:
