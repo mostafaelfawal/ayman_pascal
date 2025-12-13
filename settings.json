@@ -1,10 +1,13 @@
 {
-    "password": "$2b$12$X1k3SnUR4VtETtahJTDGKus8KiiYoM.VFtGcMx/4LxagDuCPVSkQS",
+    "password": "$2b$12$fVz5LqLizs6EtbzRsVx/Q.YVnJzhJ9PcErK0X9k3oMy1a.QSFtMZ6",
     "is_security": false,
     "company_name": "\u0623\u064a\u0645\u0646 \u0644\u0644\u0645\u0648\u0627\u0632\u064a\u0646",
     "company_phone": "01008454579",
     "company_email": "ayman_scale@gmail.com",
     "company_address": "\u0645\u0635\u0631 - \u0641\u0648\u0647 \u0643\u0641\u0631 \u0627\u0644\u0634\u064a\u062e",
     "scale_port": "COM1",
-    "scale_baudrate": "9600"
+    "scale_baudrate": "9600",
+    "printer_name": "GP-L80180 Series",
+    "printer_type": "thermal",
+    "invoices_per_print": 1
 }

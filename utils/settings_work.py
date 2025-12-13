@@ -16,7 +16,10 @@ def ensure_file_exists():
             "company_email": "ayman_scale@gmail.com",
             "company_address": "مصر - فوه كفر الشيخ",
             "scale_port": "COM1",
-            "scale_baudrate": "9600"
+            "scale_baudrate": "9600",
+            "printer_name": "",
+            "printer_type": "thermal",
+            "invoices_per_print": 1
         }, open(FILE, "w"), indent=4)
 
 def update_settings_by_key(key, value):

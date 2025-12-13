@@ -7,6 +7,7 @@ from utils.settings_work import (
 from ui.settings.settings_security import SecuritySection
 from ui.settings.settings_password import PasswordSection
 from ui.settings.settings_company import CompanySection
+from ui.settings.settings_printer import PrinterSection
 from ui.settings.settings_scale import ScaleSection
 from ui.settings.settings_save import SaveSection
 
@@ -28,6 +29,7 @@ class Settings:
         PasswordSection(self).build()
         CompanySection(self).build()
         ScaleSection(self).build()
+        PrinterSection(self).build()
         SaveSection(self).build()
         
         self.toggle_security()  # التحديث الأولي للحالة
@@ -102,30 +104,55 @@ class Settings:
     def save_settings(self):
         """حفظ الإعدادات"""
         update_settings_by_key("is_security", self.is_security.get())
-        
-        # حفظ بيانات الشركة
+
         try:
+            # ===== بيانات الشركة =====
             update_settings_by_key("company_name", self.company_name_entry.get().strip())
             update_settings_by_key("company_phone", self.company_phone_entry.get().strip())
             update_settings_by_key("company_email", self.company_email_entry.get().strip())
-            update_settings_by_key("company_address", self.company_address.get().strip())
-            
-            # حفظ اعدادات الميزان (منفذ و Baud Rate)
+            update_settings_by_key("company_address", self.company_address_entry.get().strip())
+
+            # ===== إعدادات الميزان =====
             try:
                 port_value = self.scale_port_option.get()
-                # OptionMenu may contain an explanatory suffix like " (غير موصول حاليا)"
                 if isinstance(port_value, str) and "(" in port_value:
                     port_value = port_value.split("(")[0].strip()
                 update_settings_by_key("scale_port", port_value)
-            except Exception:
-                # ignore if widgets not present
+            except:
                 pass
 
             try:
-                baud = self.scale_baud_entry.get().strip()
-                update_settings_by_key("scale_baudrate", baud)
-            except Exception:
+                update_settings_by_key(
+                    "scale_baudrate",
+                    self.scale_baud_entry.get().strip()
+                )
+            except:
                 pass
-        except:
-            pass
+
+            # ===== إعدادات الطابعة =====
+            try:
+                printer_name = self.printer_option.get().strip()
+                if "(" in printer_name:
+                    printer_name = printer_name.split("(")[0].strip()
+                update_settings_by_key("printer_name", printer_name)
+            except:
+                pass
+
+            try:
+                printer_type_ar = self.printer_type_option.get()
+                printer_type = "thermal" if printer_type_ar == "حرارية" else "normal"
+                update_settings_by_key("printer_type", printer_type)
+            except:
+                pass
+
+            try:
+                count = int(self.invoices_per_entry.get())
+                update_settings_by_key("invoices_per_print", count)
+            except:
+                update_settings_by_key("invoices_per_print", 1)
+
+        except Exception as e:
+            showerror("خطأ", str(e))
+            return
+
         showinfo("نجاح", "تم حفظ الإعدادات بنجاح!")
