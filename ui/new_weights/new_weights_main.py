@@ -12,14 +12,19 @@ from ui.new_weights.scale_display import ScaleDisplay
 from ui.new_weights.weight_frames import WeightFrames
 from ui.new_weights.form_fields import FormFields
 from ui.new_weights.action_buttons import ActionButtons
+from ui.new_weights.scale_manager import ScaleManager
 
 class NewWeights:
     def __init__(self, root):
         self.root = root
         self._setup_config()
         self._initialize_variables()
-        self._start_serial_thread()
         self.build_ui()
+
+        self.scale_manager = ScaleManager(update_callback=self._update_scale_var)
+    
+    def _update_scale_var(self, weight_value):
+        self.root.after(0, lambda: self.scale_display.scale_var.set(f"{weight_value:.2f}"))
 
     def _setup_config(self):
         self.main_font = ("Arial", 16, "bold")
@@ -140,76 +145,3 @@ class NewWeights:
         else:
             INV_num = self.db.get_invoice_num()
             print_scale_thermal(self.entries, INV_num)
-
-    
-    def _start_serial_thread(self):
-        Thread(target=self._serial_worker, daemon=True).start()
-
-    def _serial_worker(self):
-        while True:
-            self._ensure_serial_connected()
-
-            try:
-                if self.ser and self.ser.in_waiting:
-                    line = self.ser.readline().decode().strip()
-                    if line:
-                        self._process_scale_data(line)
-            except serial.SerialException:
-                self.ser = None
-
-            time.sleep(0.05)
-
-    def _ensure_serial_connected(self):
-        if self.ser:
-            if self.ser.is_open:
-                return
-            else:
-                try:
-                    self.ser.close()
-                except:
-                    pass
-                self.ser = None
-
-        try:
-            port = get_setting_by_key("scale_port") or "COM1"
-            scale_baudrate = int(get_setting_by_key("scale_baudrate") or 9600)
-            self.ser = serial.Serial(
-                port=port,
-                baudrate=scale_baudrate,
-                parity=serial.PARITY_NONE,
-                stopbits=serial.STOPBITS_ONE,
-                bytesize=serial.EIGHTBITS,
-                timeout=1
-            )
-        except Exception as e:
-            self.ser = None
-            time.sleep(3)
-
-    def _process_scale_data(self, data_line):
-        if not data_line:
-            return
-
-        # 1) تنظيف السطر من الرموز الشائعة في الموازين
-        data_line = (
-            data_line.replace("\x02", "")  # STX
-                    .replace("\x03", "")  # ETX
-                    .replace("\r", "")
-                    .replace("\n", "")
-                    .replace("kg", "")
-                    .replace("g", "")
-                    .replace("KG", "")
-                    .strip()
-        )
-
-        # 2) استخراج الرقم من أي صيغة (ينجح مع معظم الموازين)
-        match = search(r"[-+]?\d*\.\d+|[-+]?\d+", data_line)
-        if not match:
-            return
-
-        try:
-            weight_value = float(match.group())
-            self.root.after(0, lambda: 
-                self.scale_display.scale_var.set(f"{weight_value:.2f}")
-            )
-        except:
-            pass

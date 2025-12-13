@@ -16,28 +16,27 @@ class ScaleDB:
             first_date TEXT,
             last_weight TEXT,
             last_time TEXT,
-            last_date TEXT,
-            price TEXT
+            last_date TEXT
             )""")
         
         self.con.commit()
     
-    def add_scale(self, customer_name, load_type, car_number, governorate, first_time, first_date, first_weight, last_time, last_date, last_weight, price=None):
+    def add_scale(self, customer_name, load_type, car_number, governorate, first_time, first_date, first_weight, last_time, last_date, last_weight):
         """إضافة وزن جديد"""
         self.cur.execute("""INSERT INTO scales
-        (customer_name, load_type, car_number, governorate, first_time, first_date, first_weight, last_time, last_date, last_weight, price) VALUES
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (customer_name, load_type, car_number, governorate, first_time, first_date, first_weight, last_time, last_date, last_weight, price))
+        (customer_name, load_type, car_number, governorate, first_time, first_date, first_weight, last_time, last_date, last_weight) VALUES
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (customer_name, load_type, car_number, governorate, first_time, first_date, first_weight, last_time, last_date, last_weight))
         self.con.commit()
     
     def delete_scale(self, id):
         self.cur.execute("DELETE FROM scales WHERE id=?", (id, ))
         self.con.commit()
     
-    def edit_scale(self, customer_name, load_type, car_number, governorate, first_time, first_date, first_weight, last_time, last_date, last_weight, id, price=None):
+    def edit_scale(self, customer_name, load_type, car_number, governorate, first_time, first_date, first_weight, last_time, last_date, last_weight, id):
         """تعديل بيانات الوزن """
-        self.cur.execute("""UPDATE scales SET customer_name=?, load_type=?, car_number=?, governorate=?, first_time=?, first_date=?, first_weight=?, last_time=?, last_date=?, last_weight=?, price=? WHERE id=?""",
-                         (customer_name, load_type, car_number, governorate, first_time, first_date, first_weight, last_time, last_date, last_weight, price, id))
+        self.cur.execute("""UPDATE scales SET customer_name=?, load_type=?, car_number=?, governorate=?, first_time=?, first_date=?, first_weight=?, last_time=?, last_date=?, last_weight=? WHERE id=?""",
+                         (customer_name, load_type, car_number, governorate, first_time, first_date, first_weight, last_time, last_date, last_weight, id))
         self.con.commit()
         
     def get_scales(self, limit=None, offset=0, search=None):
@@ -87,9 +86,3 @@ class ScaleDB:
         self.cur.execute("SELECT MAX(id) FROM scales")
         result = self.cur.fetchone()
         return result[0] + 1 if result and result[0] is not None else 0
-     
-    def calculate_total_price(self):
-        """حساب إجمالي الأسعار"""
-        self.cur.execute("SELECT SUM(CAST(price AS REAL)) FROM scales WHERE price != '' AND price IS NOT NULL")
-        result = self.cur.fetchone()
-        return result[0] if result[0] else 0
