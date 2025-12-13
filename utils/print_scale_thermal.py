@@ -9,24 +9,24 @@ from tkinter.messagebox import showinfo, showerror
 import datetime
 from math import ceil
 
-FONT_BOLD = "assets/fonts/Amiri-Bold.ttf"
-FONT_REG = "assets/fonts/Amiri-Regular.ttf"
-
+FONT_BOLD = "assets/fonts/NotoNaskhArabic-Bold.ttf"
 
 def ar(text):
-    reshaped = arabic_reshaper.reshape(str(text))
+    text = to_arabic_digits(text)
+    reshaped = arabic_reshaper.reshape(text)
     return get_display(reshaped)
-
 
 def draw_ar(d, x, y, text, font, fill="black", anchor="ra"):
     d.text((x, y), ar(text), font=font, fill=fill, anchor=anchor)
-
 
 def draw_center_ar(d, x, y, text, font):
     bbox = d.textbbox((0, 0), ar(text), font=font)
     w = bbox[2] - bbox[0]
     d.text((x - w / 2, y), ar(text), font=font, fill="black")
 
+def to_arabic_digits(text):
+    arabic_digits = str.maketrans("0123456789", "٠١٢٣٤٥٦٧٨٩")
+    return str(text).translate(arabic_digits)
 
 def generate_arabic_invoice(entries, invoice_id, img_width=550):
 
@@ -49,9 +49,9 @@ def generate_arabic_invoice(entries, invoice_id, img_width=550):
 
     f_title = ImageFont.truetype(FONT_BOLD, 30)
     f_bold = ImageFont.truetype(FONT_BOLD, 28)
-    f_reg = ImageFont.truetype(FONT_REG, 26)
+    f_reg = ImageFont.truetype(FONT_BOLD, 26)
     f_big = ImageFont.truetype(FONT_BOLD, 42)
-    f_small = ImageFont.truetype(FONT_REG, 22)
+    f_small = ImageFont.truetype(FONT_BOLD, 22)
 
     img = Image.new("1", (img_width, 2000), "white")
     d = ImageDraw.Draw(img)
