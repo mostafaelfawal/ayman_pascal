@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from tkinter import ttk
-from tkcalendar import DateEntry
+from tkcalendar import Calendar
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from datetime import datetime
@@ -157,18 +157,28 @@ class ScaleDashboard():
         )
         from_label.pack(side="left", padx=(0, 10))
         
-        self.start_date_entry = DateEntry(
-            date_row,
-            textvariable=self.start_date_var,
-            date_pattern='yyyy-mm-dd',
-            height=35,
-            background=COLORS["bg_card"],
-            foreground=COLORS["text_primary"],
-            borderwidth=0,
-            font=("Arial", 12)
-        )
+        start_frame = ctk.CTkFrame(date_row, fg_color="transparent", height=35)
+        start_frame.pack(side="left", fill="x", expand=True, padx=(0, 20))
         
-        self.start_date_entry.pack(side="left", fill="x", expand=True, padx=(0, 20))
+        self.start_date_entry = ctk.CTkEntry(
+            start_frame,
+            textvariable=self.start_date_var,
+            placeholder_text="YYYY-MM-DD",
+            height=35
+        )
+        self.start_date_entry.pack(side="left", fill="x", expand=True)
+        
+        # زر فتح تقويم للتاريخ البدء
+        start_cal_btn = ctk.CTkButton(
+            start_frame,
+            text="📅",
+            width=40,
+            command=lambda: self.open_calendar("start"),
+            fg_color=COLORS["primary"],
+            hover_color=COLORS["primary_hover"],
+            height=35
+        )
+        start_cal_btn.pack(side="left", padx=(5, 0))
         
         # إلى تاريخ
         to_label = ctk.CTkLabel(
@@ -179,18 +189,28 @@ class ScaleDashboard():
         )
         to_label.pack(side="left", padx=(0, 10))
         
-        self.end_date_entry = DateEntry(
-            date_row,
-            textvariable=self.end_date_var,
-            date_pattern='yyyy-mm-dd',
-            height=35,
-            background=COLORS["bg_card"],
-            foreground=COLORS["text_primary"],
-            borderwidth=0,
-            font=("Arial", 12)
-        )
+        end_frame = ctk.CTkFrame(date_row, fg_color="transparent", height=35)
+        end_frame.pack(side="left", fill="x", expand=True)
         
+        self.end_date_entry = ctk.CTkEntry(
+            end_frame,
+            textvariable=self.end_date_var,
+            placeholder_text="YYYY-MM-DD",
+            height=35
+        )
         self.end_date_entry.pack(side="left", fill="x", expand=True)
+        
+        # زر فتح تقويم للتاريخ النهاية
+        end_cal_btn = ctk.CTkButton(
+            end_frame,
+            text="📅",
+            width=40,
+            command=lambda: self.open_calendar("end"),
+            fg_color=COLORS["primary"],
+            hover_color=COLORS["primary_hover"],
+            height=35
+        )
+        end_cal_btn.pack(side="left", padx=(5, 0))
         
         # صف 2: العملاء ونوع الحمولة
         row2 = ctk.CTkFrame(filters_grid, fg_color="transparent")
@@ -651,6 +671,44 @@ class ScaleDashboard():
             font=("Arial", 14, "bold")
         )
         print_btn.pack(side="left", fill="x", expand=True, padx=(5, 0))
+    
+    def open_calendar(self, date_type="start"):
+        """فتح نافذة تقويم منفصلة"""
+        cal_window = ctk.CTkToplevel(self.root)
+        cal_window.title("اختر تاريخ")
+        cal_window.geometry("300x300")
+        cal_window.transient(self.root)
+        cal_window.grab_set()
+        
+        # إنشاء التقويم
+        cal = Calendar(
+            cal_window,
+            selectmode='day',
+            date_pattern='y-mm-dd',
+            background=COLORS["bg_card"],
+            foreground=COLORS["text_primary"],
+            selectbackground=COLORS["primary"]
+        )
+        cal.pack(pady=20, padx=20, fill="both", expand=True)
+        
+        # زر التأكيد
+        def set_date():
+            selected_date = cal.get_date()
+            if date_type == "start":
+                self.start_date_var.set(selected_date)
+            else:
+                self.end_date_var.set(selected_date)
+            cal_window.destroy()
+        
+        confirm_btn = ctk.CTkButton(
+            cal_window,
+            text="تأكيد",
+            command=set_date,
+            font=("Arial", 20, "bold"),
+            fg_color=COLORS["success"],
+            hover_color=COLORS["success_hover"]
+        )
+        confirm_btn.pack(pady=10)
     
     def reshape_arabic(self, text):
         reshaped = arabic_reshaper.reshape(text)
