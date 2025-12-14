@@ -3,7 +3,6 @@ from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from datetime import datetime
-import tkinter as tk
 
 # الألوان المخصصة بناءً على طلبك
 COLORS = {
@@ -117,6 +116,8 @@ class ScaleDashboard():
         # الرسوم البيانية
         self.create_charts_frame(analytics_grid)
         
+        self.create_table(analytics_grid)
+        
         # أزرار سريعة
         self.create_quick_actions()
     
@@ -195,7 +196,8 @@ class ScaleDashboard():
             values=customers,
             variable=self.customer_var,
             height=35,
-            dropdown_font=("Arial", 12)
+            font=("Arial", 20),
+            dropdown_font=("Arial", 15)
         )
         self.customer_combo.pack(side="left", fill="x", expand=True, padx=(0, 20))
         
@@ -214,7 +216,8 @@ class ScaleDashboard():
             values=load_types,
             variable=self.load_type_var,
             height=35,
-            dropdown_font=("Arial", 12)
+            font=("Arial", 20),
+            dropdown_font=("Arial", 15)
         )
         self.load_type_combo.pack(side="left", fill="x", expand=True)
         
@@ -237,7 +240,8 @@ class ScaleDashboard():
             values=governorates,
             variable=self.governorate_var,
             height=35,
-            dropdown_font=("Arial", 12)
+            font=("Arial", 20),
+            dropdown_font=("Arial", 15)
         )
         self.governorate_combo.pack(side="left", fill="x", expand=True, padx=(0, 20))
         
@@ -568,17 +572,7 @@ class ScaleDashboard():
         self.tree.column("الوزن الصافي", width=80, anchor="center", minwidth=70)
         self.tree.column("التاريخ", width=80, anchor="center", minwidth=70)
         
-        # إضافة Scrollbar أفقية وعمودية
-        v_scrollbar = ttk.Scrollbar(table_container, orient="vertical", command=self.tree.yview)
-        h_scrollbar = ttk.Scrollbar(table_container, orient="horizontal", command=self.tree.xview)
-        
-        self.tree.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
-        
-        # وضع العناصر في grid
-        self.tree.grid(row=0, column=0, sticky="nsew")
-        v_scrollbar.grid(row=0, column=1, sticky="ns")
-        h_scrollbar.grid(row=1, column=0, sticky="ew")
-        
+        self.tree.grid(row=0, column=0, sticky="nsew")        
         # تكوين grid للتمدد
         table_container.grid_rowconfigure(0, weight=1)
         table_container.grid_columnconfigure(0, weight=1)
@@ -892,30 +886,6 @@ class ScaleDashboard():
             except:
                 continue
     
-    def filter_table(self):
-        """تصفية الجدول بناءً على البحث"""
-        search_term = self.search_entry.get().lower()
-        
-        data = self.db.get_scales_data(
-            self.start_date_var.get() if self.start_date_var.get() else None,
-            self.end_date_var.get() if self.end_date_var.get() else None,
-            self.customer_var.get() if self.customer_var.get() != "الكل" else None,
-            self.load_type_var.get() if self.load_type_var.get() != "الكل" else None,
-            self.governorate_var.get() if self.governorate_var.get() != "الكل" else None
-        )
-        
-        if search_term:
-            filtered_data = []
-            for row in data:
-                if (search_term in str(row["id"]).lower() or 
-                    search_term in row["customer_name"].lower()):
-                    filtered_data.append(row)
-            data = filtered_data
-        
-        self.update_table(data)
-        self.update_weight_analytics(data)
-        self.update_time_analytics(data)
-    
     def update_dashboard(self):
         """تحديث جميع أجزاء الداشبورد"""
         data = self.db.get_scales_data(
@@ -931,9 +901,7 @@ class ScaleDashboard():
         self.update_time_analytics(data)
         self.update_charts()
         self.update_table(data)
-        
-        print("✅ تم تحديث الداشبورد بنجاح")
-    
+            
     def clear_filters(self):
         """مسح جميع الفلاتر"""
         self.start_date_var.set("")
@@ -951,7 +919,6 @@ class ScaleDashboard():
         data = self.db.get_scales_data(start_date=today, end_date=today)
         
         if not data:
-            print("⚠️ لا توجد عمليات وزن اليوم")
             return
         
         report = f"""
@@ -989,6 +956,3 @@ class ScaleDashboard():
         إجمالي الوزن الصافي اليوم: {total_net_weight:.0f} kg
         ====================================
         """
-        
-        print(report)
-        print("✅ تم إنشاء تقرير اليوم")
