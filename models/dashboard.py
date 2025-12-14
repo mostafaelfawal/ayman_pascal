@@ -1,10 +1,14 @@
 import sqlite3
 from datetime import datetime
+from models.scale import ScaleDB
 
 class DashboardDB:
     """فصل للتعامل مع قاعدة البيانات خاصة بالتقارير"""
     
     def __init__(self):
+        # لتهئية جداول قاعدة البيانات
+        ScaleDB()
+        
         self.conn = sqlite3.connect("db/scale.db")
         self.conn.row_factory = sqlite3.Row
         self.cursor = self.conn.cursor()
@@ -66,7 +70,7 @@ class DashboardDB:
         query += " ORDER BY last_date DESC, last_time DESC"
         self.cursor.execute(query, params)
         return self.cursor.fetchall()
-    
+
     def get_customers_list(self):
         """الحصول على قائمة العملاء"""
         self.cursor.execute("SELECT DISTINCT customer_name FROM scales ORDER BY customer_name")

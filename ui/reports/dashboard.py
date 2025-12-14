@@ -3,6 +3,7 @@ from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from datetime import datetime
+from utils.load_image import load_image
 
 # الألوان المخصصة بناءً على طلبك
 COLORS = {
@@ -95,10 +96,13 @@ class ScaleDashboard():
         analytics_frame.pack(fill="x", padx=15, pady=10)
         
         # عنوان قسم التحليلات
+        icon = load_image("assets/reports/التحليلات والرسوم البيانية.png", (20, 20))
         analytics_title = ctk.CTkLabel(
             analytics_frame,
-            text="📈 التحليلات والرسوم البيانية",
+            text="  التحليلات والرسوم البيانية",
             font=("Arial", 18, "bold"),
+            image=icon,
+            compound="left",
             text_color=COLORS["text_primary"]
         )
         analytics_title.pack(anchor="w", padx=20, pady=(15, 10))
@@ -246,10 +250,13 @@ class ScaleDashboard():
         self.governorate_combo.pack(side="left", fill="x", expand=True, padx=(0, 20))
         
         # زر تحديث التقارير
+        icon = load_image("assets/update_data.png", (20, 20))
         update_btn = ctk.CTkButton(
             row3,
-            text="🔄 تحديث التقارير",
+            text="تحديث التقارير",
             command=self.update_dashboard,
+            image=icon,
+            compound="left",
             fg_color=COLORS["primary"],
             hover_color=COLORS["primary_hover"],
             height=40,
@@ -263,10 +270,13 @@ class ScaleDashboard():
         cards_container.pack(fill="x", padx=15, pady=(0, 15))
         
         # عنوان الكروت
+        icon = load_image("assets/reports/الإحصائيات السريعة.png", (20, 20))
         cards_title = ctk.CTkLabel(
             cards_container,
-            text="📊 الإحصائيات السريعة",
+            text="   الإحصائيات السريعة",
             font=("Arial", 18, "bold"),
+            image=icon,
+            compound="left",
             text_color=COLORS["text_primary"]
         )
         cards_title.pack(anchor="w", pady=(0, 10))
@@ -280,32 +290,27 @@ class ScaleDashboard():
             {
                 "title": "إجمالي عمليات الوزن",
                 "value": "0",
-                "icon": "📊",
-                "color": COLORS["primary"]
+                "icon": "assets/reports/إجمالي عمليات الوزن.png",
             },
             {
                 "title": "وزنات اليوم",
                 "value": "0",
-                "icon": "📅",
-                "color": COLORS["success"]
+                "icon": "assets/reports/وزنات اليوم.png",
             },
             {
                 "title": "وزنات الشهر الحالي",
                 "value": "0",
-                "icon": "📈",
-                "color": COLORS["warning"]
+                "icon": "assets/reports/وزنات الشهر الحالي.png",
             },
             {
                 "title": "عملاء مختلفون",
                 "value": "0",
-                "icon": "👥",
-                "color": COLORS["purple"]
+                "icon": "assets/reports/عملاء مختلفون.png",
             },
             {
                 "title": "سيارات مختلفة",
                 "value": "0",
-                "icon": "🚛",
-                "color": COLORS["accent"]
+                "icon": "assets/reports/سيارات مختلفة.png",
             }
         ]
         
@@ -338,11 +343,11 @@ class ScaleDashboard():
             top_row.pack(fill="x")
             
             # الأيقونة
+            icon = load_image(card_data["icon"], (25, 25))
             icon_label = ctk.CTkLabel(
                 top_row,
-                text=card_data["icon"],
-                font=("Arial", 24),
-                text_color=card_data["color"]
+                image=icon,
+                text=""
             )
             icon_label.pack(side="left", padx=(0, 10))
             
@@ -350,8 +355,8 @@ class ScaleDashboard():
             title_label = ctk.CTkLabel(
                 top_row,
                 text=card_data["title"],
-                font=("Arial", 12),
-                text_color=COLORS["text_secondary"]
+                font=("Arial", 20),
+                text_color="white"
             )
             title_label.pack(side="left")
             
@@ -369,7 +374,6 @@ class ScaleDashboard():
                 "value_label": value_label,
                 "title": card_data["title"],
                 "icon": card_data["icon"],
-                "color": card_data["color"]
             })
     
     def create_weight_analytics(self, parent):
@@ -384,9 +388,12 @@ class ScaleDashboard():
         weight_frame.pack(fill="x", pady=(0, 10))
         
         # عنوان القسم
+        icon = load_image("assets/reports/تحليلات الوزن الصافي.png", (25, 25))
         weight_title = ctk.CTkLabel(
             weight_frame,
-            text="⚖️ تحليلات الوزن الصافي",
+            text="   تحليلات الوزن الصافي",
+            image=icon,
+            compound="left",
             font=("Arial", 16, "bold"),
             text_color=COLORS["text_primary"]
         )
@@ -442,10 +449,13 @@ class ScaleDashboard():
         time_frame.pack(fill="x", pady=(0, 10))
         
         # عنوان القسم
+        icon = load_image("assets/reports/التحليلات الزمنية.png", (25, 25))
         time_title = ctk.CTkLabel(
             time_frame,
-            text="⏱️ التحليلات الزمنية",
+            text="   التحليلات الزمنية",
             font=("Arial", 16, "bold"),
+            image=icon,
+            compound="left",
             text_color=COLORS["text_primary"]
         )
         time_title.pack(anchor="w", padx=15, pady=12)
@@ -587,9 +597,12 @@ class ScaleDashboard():
         buttons_grid.pack(fill="x")
         
         # زر تصفية الفلاتر
+        icon = load_image("assets/delete.png", (20, 20))
         clear_btn = ctk.CTkButton(
             buttons_grid,
-            text="🗑️ مسح الفلاتر",
+            text="مسح الفلاتر",
+            image=icon,
+            compound="left",
             command=self.clear_filters,
             fg_color=COLORS["danger"],
             hover_color=COLORS["danger_hover"],
@@ -599,10 +612,13 @@ class ScaleDashboard():
         clear_btn.pack(side="left", fill="x", expand=True, padx=(0, 5))
         
         # زر التحديث
+        icon = load_image("assets/update_data.png", (20, 20))
         refresh_btn = ctk.CTkButton(
             buttons_grid,
-            text="🔄 تحديث البيانات",
+            text="تحديث البيانات",
             command=self.update_dashboard,
+            image=icon,
+            compound="left",
             fg_color=COLORS["success"],
             hover_color=COLORS["success_hover"],
             height=40,
@@ -611,9 +627,12 @@ class ScaleDashboard():
         refresh_btn.pack(side="left", fill="x", expand=True, padx=5)
         
         # زر طباعة تقرير اليوم
+        icon = load_image("assets/طباعة.png", (20, 20))
         print_btn = ctk.CTkButton(
             buttons_grid,
-            text="🖨️ طباعة تقرير اليوم",
+            text="طباعة تقرير اليوم",
+            image=icon,
+            compound="left",
             command=self.print_today_report,
             fg_color=COLORS["primary"],
             hover_color=COLORS["primary_hover"],
@@ -868,7 +887,16 @@ class ScaleDashboard():
         """تحديث جدول البيانات"""
         for item in self.tree.get_children():
             self.tree.delete(item)
-        
+            
+        if (len(data) == 0):
+            self.tree.insert("", "end", values=(
+                "",
+                "",
+                "لا توجد وزنات بعد",
+                "",
+                "",
+                ""
+            ))
         for row in data:
             try:
                 first_weight = float(row["first_weight"])
@@ -909,7 +937,6 @@ class ScaleDashboard():
         self.customer_var.set("الكل")
         self.load_type_var.set("الكل")
         self.governorate_var.set("الكل")
-        self.search_entry.delete(0, "end")
         
         self.update_dashboard()
     
