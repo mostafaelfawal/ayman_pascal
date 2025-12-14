@@ -1,9 +1,12 @@
 import customtkinter as ctk
 from tkinter import ttk
+from tkcalendar import DateEntry
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from datetime import datetime
 from utils.load_image import load_image
+import arabic_reshaper
+from bidi.algorithm import get_display
 
 # الألوان المخصصة بناءً على طلبك
 COLORS = {
@@ -12,7 +15,6 @@ COLORS = {
     "success": "#10b981",
     "success_hover": "#0da673",
     "warning": "#f59e0b",
-    "warning_hover": "#bd7e10",
     "purple": "#8b5cf6",
     "purple_hover": "#6943c0",
     "danger": "#ef4444",
@@ -20,7 +22,6 @@ COLORS = {
     "text_primary": "#60a5fa",
     "text_secondary": "#cbd5e1",
     "accent": "#22d3ee",
-    "muted": "#94a3b8",
     "bg_primary": "#0f172a",
     "bg_secondary": "#1e293b",
     "bg_card": "#334155",
@@ -156,12 +157,17 @@ class ScaleDashboard():
         )
         from_label.pack(side="left", padx=(0, 10))
         
-        self.start_date_entry = ctk.CTkEntry(
+        self.start_date_entry = DateEntry(
             date_row,
             textvariable=self.start_date_var,
-            placeholder_text="YYYY-MM-DD",
-            height=35
+            date_pattern='yyyy-mm-dd',
+            height=35,
+            background=COLORS["bg_card"],
+            foreground=COLORS["text_primary"],
+            borderwidth=0,
+            font=("Arial", 12)
         )
+        
         self.start_date_entry.pack(side="left", fill="x", expand=True, padx=(0, 20))
         
         # إلى تاريخ
@@ -173,12 +179,17 @@ class ScaleDashboard():
         )
         to_label.pack(side="left", padx=(0, 10))
         
-        self.end_date_entry = ctk.CTkEntry(
+        self.end_date_entry = DateEntry(
             date_row,
             textvariable=self.end_date_var,
-            placeholder_text="YYYY-MM-DD",
-            height=35
+            date_pattern='yyyy-mm-dd',
+            height=35,
+            background=COLORS["bg_card"],
+            foreground=COLORS["text_primary"],
+            borderwidth=0,
+            font=("Arial", 12)
         )
+        
         self.end_date_entry.pack(side="left", fill="x", expand=True)
         
         # صف 2: العملاء ونوع الحمولة
@@ -569,7 +580,7 @@ class ScaleDashboard():
         # تعريف العناوين بعناوين مختصرة
         self.tree.heading("ID", text="رقم")
         self.tree.heading("العميل", text="العميل")
-        self.tree.heading("نوع الحمولة", text="النوع")
+        self.tree.heading("نوع الحمولة", text="الحمولة")
         self.tree.heading("رقم العربية", text="السيارة")
         self.tree.heading("الوزن الصافي", text="الوزن")
         self.tree.heading("التاريخ", text="التاريخ")
@@ -641,6 +652,10 @@ class ScaleDashboard():
         )
         print_btn.pack(side="left", fill="x", expand=True, padx=(5, 0))
     
+    def reshape_arabic(self, text):
+        reshaped = arabic_reshaper.reshape(text)
+        return get_display(reshaped)
+    
     def update_charts(self):
         """تحديث الرسوم البيانية مع تصميم للشاشات الضيقة"""
         # تنظيف الإطار الحالي
@@ -684,9 +699,9 @@ class ScaleDashboard():
             bars1 = ax1.bar(short_dates, counts, color=COLORS["primary"], edgecolor=COLORS["border"], width=0.6)
             ax1.set_facecolor(COLORS["bg_card"])
             ax1.tick_params(colors=COLORS["text_secondary"], labelsize=9)
-            ax1.set_title("عدد عمليات الوزن يومياً", color=COLORS["text_primary"], fontsize=11, pad=8)
-            ax1.set_xlabel("التاريخ", color=COLORS["text_secondary"], fontsize=9)
-            ax1.set_ylabel("العدد", color=COLORS["text_secondary"], fontsize=9)
+            ax1.set_title(self.reshape_arabic("عدد عمليات الوزن يومياً"), color=COLORS["text_primary"], fontsize=11, pad=8)
+            ax1.set_xlabel(self.reshape_arabic("التاريخ"), color=COLORS["text_secondary"], fontsize=9)
+            ax1.set_ylabel(self.reshape_arabic("العدد"), color=COLORS["text_secondary"], fontsize=9)            
             
             # إضافة القيم فوق الأعمدة
             for bar in bars1:
@@ -696,7 +711,7 @@ class ScaleDashboard():
                         color=COLORS["text_primary"], fontsize=8)
         
         else:
-            ax1.text(0.5, 0.5, "لا توجد بيانات", 
+            ax1.text(0.5, 0.5, self.reshape_arabic("لا توجد بيانات"), 
                     ha='center', va='center',
                     color=COLORS["text_secondary"], fontsize=12)
             ax1.set_facecolor(COLORS["bg_card"])
@@ -708,7 +723,7 @@ class ScaleDashboard():
         ax2 = fig2.add_subplot(111)
         
         if customer_stats:
-            customers = [row["customer_name"] for row in customer_stats]
+            customers = [self.reshape_arabic(row["customer_name"]) for row in customer_stats]
             counts = [row["count"] for row in customer_stats]
             
             # تقصير أسماء العملاء أكثر للشاشات الضيقة
@@ -728,9 +743,8 @@ class ScaleDashboard():
             bars2 = ax2.barh(short_customers, counts, color=COLORS["purple"], edgecolor=COLORS["border"], height=0.5)
             ax2.set_facecolor(COLORS["bg_card"])
             ax2.tick_params(colors=COLORS["text_secondary"], labelsize=9)
-            ax2.set_title("أكثر العملاء تعاملاً", color=COLORS["text_primary"], fontsize=11, pad=8)
-            ax2.set_xlabel("عدد العمليات", color=COLORS["text_secondary"], fontsize=9)
-            
+            ax2.set_title(self.reshape_arabic("أكثر العملاء تعاملاً"), color=COLORS["text_primary"], fontsize=11, pad=8)
+            ax2.set_xlabel(self.reshape_arabic("عدد العمليات"), color=COLORS["text_secondary"], fontsize=9)            
             # إضافة القيم على الأعمدة
             for bar in bars2:
                 width = bar.get_width()
@@ -739,7 +753,7 @@ class ScaleDashboard():
                         color=COLORS["text_primary"], fontsize=8)
         
         else:
-            ax2.text(0.5, 0.5, "لا توجد بيانات", 
+            ax2.text(0.5, 0.5, self.reshape_arabic("لا توجد بيانات"), 
                     ha='center', va='center',
                     color=COLORS["text_secondary"], fontsize=12)
             ax2.set_facecolor(COLORS["bg_card"])
@@ -754,9 +768,7 @@ class ScaleDashboard():
         canvas2 = FigureCanvasTkAgg(fig2, self.charts_container)
         canvas2.draw()
         canvas2.get_tk_widget().pack(fill="x")
-    
-    # باقي الدوال تبقى كما هي مع بعض التعديلات الطفيفة
-    
+        
     def update_stats_cards(self):
         """تحديث كروت الإحصائيات"""
         total_scales = self.db.get_total_scales()
@@ -932,8 +944,11 @@ class ScaleDashboard():
             
     def clear_filters(self):
         """مسح جميع الفلاتر"""
-        self.start_date_var.set("")
-        self.end_date_var.set("")
+        # ضبط التاريخ الحالي بدلاً من مسحه
+        today = datetime.now().strftime("%Y-%m-%d")
+        self.start_date_var.set(today)
+        self.end_date_var.set(today)
+        
         self.customer_var.set("الكل")
         self.load_type_var.set("الكل")
         self.governorate_var.set("الكل")
